@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard – Winter House</title>
+  <link rel="stylesheet" href="css/global.css"/>
+  <style>
+    /* ===== NEWS WIDGETS ===== */
+    .news-section {
+      margin-bottom: 32px;
+    }
+
+    .news-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+    }
+
+    .news-widget {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    .news-widget-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      color: var(--text-primary);
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .news-slide {
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .news-slide.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .news-img {
+      width: 100%;
+      height: 130px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      background: var(--bg-hover);
+    }
+
+    .news-img-placeholder {
+      width: 100%;
+      height: 130px;
+      background: linear-gradient(135deg, var(--bg-hover), var(--border));
+      border-radius: 8px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .news-headline {
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--text-secondary);
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .news-dots {
+      display: flex;
+      gap: 4px;
+      margin-top: 10px;
+      justify-content: center;
+    }
+
+    .news-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--border);
+      transition: background 0.2s;
+      cursor: pointer;
+    }
+
+    .news-dot.active {
+      background: var(--accent-blue);
+    }
+
+    /* ===== HOUSE NEWS (Admin controlled) ===== */
+    .house-news-widget {
+      background: linear-gradient(135deg, #1a2040, #151c35);
+      border-color: #2a3a60;
+    }
+
+    .house-news-widget .news-widget-title {
+      color: #8aadd4;
+    }
+
+    /* ===== WINTER HOUSE INFO ===== */
+    .info-drive-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+
+    .info-drive-left h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .info-drive-left p {
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .btn-drive {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #4285f4;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 11px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+
+    .btn-drive:hover {
+      opacity: 0.9;
+    }
+
+    /* ===== SLIDER SECTION ===== */
+    .slider-section {
+      margin-bottom: 28px;
+    }
+
+    .slider-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 12px;
+    }
+
+    .slider-question {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .slider-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .slider-input-wrap span {
+      font-size: 12px;
+      color: var(--text-muted);
+      min-width: 40px;
+    }
+
+    .slider-input-wrap input[type="range"] {
+      flex: 1;
+      accent-color: var(--accent-blue);
+      height: 6px;
+    }
+
+    .slider-value-badge {
+      background: var(--accent-blue);
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      min-width: 36px;
+      text-align: center;
+    }
+
+    .btn-submit-slider {
+      margin-top: 12px;
+    }
+
+    /* ===== CALENDAR ===== */
+    .calendar-section {
+      margin-bottom: 28px;
+    }
+
+    .calendar-wrap {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .calendar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .calendar-header h3 {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .cal-nav {
+      display: flex;
+      gap: 8px;
+    }
+
+    .cal-nav button {
+      background: var(--bg-hover);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      border-radius: 6px;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .cal-nav button:hover {
+      background: var(--accent-blue);
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .cal-day-header {
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 6px 0;
+      text-transform: uppercase;
+    }
+
+    .cal-day {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .cal-day:hover {
+      background: var(--bg-hover);
+    }
+
+    .cal-day.today {
+      background: var(--accent-blue);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .cal-day.has-event {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .cal-day.has-event::after {
+      content: '';
+      position: absolute;
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--warning);
+    }
+
+    .cal-day.empty {
+      cursor: default;
+    }
+
+    .event-tooltip {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      white-space: nowrap;
+      z-index: 100;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      display: none;
+    }
+
+    .cal-day:hover .event-tooltip {
+      display: block;
+    }
+
+    /* Admin controls in dashboard */
+    .admin-panel {
+      background: linear-gradient(135deg, #1f1500, #2a1c00);
+      border: 1px solid #4a3000;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 28px;
+    }
+
+    .admin-panel-title {
+      color: var(--warning);
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .admin-controls-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-wrapper" id="pageWrapper">
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-icon">❄️</span>
+      <div class="logo-text">
+        <h2>Winter House</h2>
+        <span>Tahr Central</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="index.html" class="nav-item active">
+        <span class="nav-icon">🏠</span> Dashboard
+      </a>
+      <a href="challenges.html" class="nav-item">
+        <span class="nav-icon">⚔️</span> Challenges
+      </a>
+      <a href="info-hub.html" class="nav-item">
+        <span class="nav-icon">👥</span> Info Hub
+      </a>
+      <a href="check-in.html" class="nav-item">
+        <span class="nav-icon">✅</span> Check In
+      </a>
+      <a href="hall-of-fame.html" class="nav-item">
+        <span class="nav-icon">🏆</span> Hall of Fame
+      </a>
+      <a href="personal-chat.html" class="nav-item">
+        <span class="nav-icon">💬</span> Personal Chat
+      </a>
+      <a href="community.html" class="nav-item">
+        <span class="nav-icon">📣</span> Community
+      </a>
+    </nav>
+    <div style="padding: 16px 20px; border-top: 1px solid var(--border);">
+      <div id="sidebarUser" style="display:flex;align-items:center;gap:10px;">
+        <div style="width:32px;height:32px;background:var(--accent-blue);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;" id="sidebarAvatar">?</div>
+        <div>
+          <div style="font-size:13px;font-weight:600;" id="sidebarName">Loading...</div>
+          <div style="font-size:11px;color:var(--text-muted);" id="sidebarRoll"></div>
+        </div>
+      </div>
+      <button onclick="logout()" style="margin-top:10px;width:100%;background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:6px;padding:8px;cursor:pointer;font-size:12px;transition:all 0.2s;">Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1>Welcome to <span>Tahr Central</span></h1>
+        <p id="dateDisplay">Loading...</p>
+      </div>
+      <div class="topbar-right">
+        <div class="quote-badge">❄️ "Winter is Coming..."</div>
+      </div>
+    </div>
+
+    <!-- PAGE CONTENT -->
+    <div class="page-content">
+
+      <!-- ADMIN PANEL (only visible to admin) -->
+      <div class="admin-panel" id="adminPanel" style="display:none;">
+        <div class="admin-panel-title">⚙️ Admin Controls – Dashboard</div>
+        <div class="admin-controls-row">
+          <button class="btn btn-primary" onclick="openModal('addHouseNewsModal')">+ House News</button>
+          <button class="btn btn-primary" onclick="openModal('addSliderModal')">+ Add Slider</button>
+          <button class="btn btn-primary" onclick="openModal('addEventModal')">+ Calendar Event</button>
+        </div>
+      </div>
+
+      <!-- NEWS SECTION -->
+      <div class="news-section">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Information Hub</div>
+            <div class="section-subtitle">Live news updated daily</div>
+          </div>
+        </div>
+
+        <div class="news-grid" id="newsGrid">
+          <!-- House News Widget -->
+          <div class="news-widget house-news-widget">
+            <div class="news-widget-title">🏠 House News</div>
+            <div id="houseNewsSlides"></div>
+            <div class="news-dots" id="houseNewsDots"></div>
+          </div>
+
+          <!-- API News Widgets will be injected here -->
+          <div class="news-widget" id="indiaNewsWidget">
+            <div class="news-widget-title">🇮🇳 Indian News</div>
+            <div id="indiaNewsSlides"><div class="news-img-placeholder">📰</div><p class="news-headline" style="color:var(--text-muted);">Loading...</p></div>
+            <div class="news-dots" id="indiaNewsDots"></div>
+          </div>
+
+          <div class="news-widget" id="businessNewsWidget">
+            <div class="news-widget-title">💼 Business News</div>
+            <div id="businessNewsSlides"><div class="news-img-placeholder">📈</div><p class="news-headline" style="color:var(--text-muted);">Loading...</p></div>
+            <div class="news-dots" id="businessNewsDots"></div>
+          </div>
+
+          <div class="news-widget" id="worldNewsWidget">
+            <div class="news-widget-title">🌍 World News</div>
+            <div id="worldNewsSlides"><div class="news-img-placeholder">🌐</div><p class="news-headline" style="color:var(--text-muted);">Loading...</p></div>
+            <div class="news-dots" id="worldNewsDots"></div>
+          </div>
+
+          <div class="news-widget" id="sportsNewsWidget">
+            <div class="news-widget-title">⚽ Sports News</div>
+            <div id="sportsNewsSlides"><div class="news-img-placeholder">🏅</div><p class="news-headline" style="color:var(--text-muted);">Loading...</p></div>
+            <div class="news-dots" id="sportsNewsDots"></div>
+          </div>
+        </div>
+
+        <!-- Second row -->
+        <div class="news-grid" style="margin-top:16px; grid-template-columns: repeat(2, 1fr);">
+          <div class="news-widget" id="scienceNewsWidget">
+            <div class="news-widget-title">🔬 Science News</div>
+            <div id="scienceNewsSlides"><div class="news-img-placeholder">🧪</div><p class="news-headline" style="color:var(--text-muted);">Loading...</p></div>
+            <div class="news-dots" id="scienceNewsDots"></div>
+          </div>
+
+          <div class="news-widget" id="gsisNewsWidget">
+            <div class="news-widget-title">🎓 GSIS News</div>
+            <div id="gsisNewsSlides"><div class="news-img-placeholder">🏫</div><p class="news-headline" style="color:var(--text-muted);">Loading...</p></div>
+            <div class="news-dots" id="gsisNewsDots"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WINTER HOUSE INFO / DRIVE LINK -->
+      <div class="info-drive-section">
+        <div class="info-drive-left">
+          <h3>❄️ Winter House Info</h3>
+          <p>Access all house documents, resources and files</p>
+        </div>
+        <a href="https://drive.google.com/drive/folders/1IzrwvI9qfWlme3StXj9Fw1_1lAmuLaFO?usp=sharing" target="_blank" class="btn-drive">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M6.28 3L1 12.5 6.28 21h11.44L23 12.5 17.72 3z"/>
+          </svg>
+          Open Google Drive
+        </a>
+      </div>
+
+      <!-- SLIDERS SECTION -->
+      <div class="slider-section" id="sliderSection" style="display:none;">
+        <div class="section-header">
+          <div class="section-title">How are you doing?</div>
+        </div>
+        <div id="slidersContainer"></div>
+      </div>
+
+      <!-- CALENDAR SECTION -->
+      <div class="calendar-section">
+        <div class="section-header">
+          <div class="section-title">📅 Events Calendar</div>
+        </div>
+        <div class="calendar-wrap">
+          <div class="calendar-header">
+            <h3 id="calMonthYear"></h3>
+            <div class="cal-nav">
+              <button onclick="changeMonth(-1)">‹</button>
+              <button onclick="changeMonth(1)">›</button>
+            </div>
+          </div>
+          <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
+      </div>
+
+    </div><!-- /page-content -->
+  </main>
+</div><!-- /app-layout -->
+</div><!-- /page-wrapper -->
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ===== ADMIN MODALS ===== -->
+
+<!-- Add House News Modal -->
+<div class="modal-overlay" id="addHouseNewsModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('addHouseNewsModal')">✕</button>
+    <h2>Add House News</h2>
+    <div class="form-group">
+      <label>Headline</label>
+      <input type="text" id="hnTitle" placeholder="Enter headline..."/>
+    </div>
+    <div class="form-group">
+      <label>Short Description (1-2 lines)</label>
+      <textarea id="hnDesc" placeholder="Brief description..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Image URL (optional)</label>
+      <input type="url" id="hnImg" placeholder="https://..."/>
+    </div>
+    <button class="btn btn-primary" onclick="addHouseNews()">Publish News</button>
+  </div>
+</div>
+
+<!-- Add Slider Modal -->
+<div class="modal-overlay" id="addSliderModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('addSliderModal')">✕</button>
+    <h2>Add Slider Question</h2>
+    <div class="form-group">
+      <label>Question</label>
+      <input type="text" id="sliderQ" placeholder="How is your day going?"/>
+    </div>
+    <div class="form-group">
+      <label>Min Label</label>
+      <input type="text" id="sliderMin" placeholder="Bad" value="Bad"/>
+    </div>
+    <div class="form-group">
+      <label>Max Label</label>
+      <input type="text" id="sliderMax" placeholder="Great" value="Great"/>
+    </div>
+    <button class="btn btn-primary" onclick="addSlider()">Add Slider</button>
+  </div>
+</div>
+
+<!-- Add Calendar Event Modal -->
+<div class="modal-overlay" id="addEventModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('addEventModal')">✕</button>
+    <h2>Add Calendar Event</h2>
+    <div class="form-group">
+      <label>Event Title</label>
+      <input type="text" id="evTitle" placeholder="Event name..."/>
+    </div>
+    <div class="form-group">
+      <label>Date</label>
+      <input type="date" id="evDate"/>
+    </div>
+    <div class="form-group">
+      <label>Description (optional)</label>
+      <textarea id="evDesc" placeholder="Brief description..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Color</label>
+      <input type="color" id="evColor" value="#f59e0b" style="height:40px;padding:4px;"/>
+    </div>
+    <button class="btn btn-primary" onclick="addCalendarEvent()">Add Event</button>
+  </div>
+</div>
+
+<!-- Firebase + Supabase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut }
+    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+  // ⚠️ REPLACE WITH YOUR KEYS
+  const firebaseConfig = {
+    apiKey: "AIzaSyBzy-i81YhgrGoSfIFHbNT-Xxem-fbo94E",
+    authDomain: "winter-house-d3132.firebaseapp.com",
+    projectId: "winter-house-d3132",
+    storageBucket: "winter-house-d3132.firebasestorage.app",
+    messagingSenderId: "678128530195",
+    appId: "1:678128530195:web:464d6dedf0846070c220e6"
+  };
+
+  const SUPABASE_URL = "https://dwjsprcfncwbcizvukyu.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR3anNwcmNmbmN3YmNpenZ1a3l1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0NTU0MTUsImV4cCI6MjA4OTAzMTQxNX0.StzyQwnuvdq7YRGUOnLey9Sr842HnAGEQecgeO63p7U";
+  const NEWS_API_KEY = "e1b934eca42d4c93bd955057452bdc4f"; // from newsapi.org
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let currentUser = null;
+  let calendarYear = new Date().getFullYear();
+  let calendarMonth = new Date().getMonth();
+  let calendarEvents = [];
+
+  // ===== AUTH GUARD =====
+  onAuthStateChanged(auth, async (fbUser) => {
+    if (!fbUser) {
+      window.location.href = 'login.html';
+      return;
+    }
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('firebase_uid', fbUser.uid)
+      .single();
+
+    if (!profile) {
+      window.location.href = 'login.html';
+      return;
+    }
+
+    currentUser = profile;
+    localStorage.setItem('wh_user', JSON.stringify(profile));
+
+    // Show page
+    document.getElementById('pageWrapper').classList.add('loaded');
+
+    // Set sidebar info
+    document.getElementById('sidebarName').textContent = profile.name;
+    document.getElementById('sidebarRoll').textContent = profile.roll_number;
+    document.getElementById('sidebarAvatar').textContent = profile.name.charAt(0).toUpperCase();
+
+    if (profile.is_admin) {
+      document.getElementById('adminPanel').style.display = 'block';
+    }
+
+    // Load everything
+    loadDate();
+    loadNews(NEWS_API_KEY);
+    loadHouseNews();
+    loadSliders();
+    loadCalendarEvents();
+  });
+
+  // ===== DATE =====
+  function loadDate() {
+    const now = new Date();
+    const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+                   hour: '2-digit', minute: '2-digit' };
+    document.getElementById('dateDisplay').textContent = now.toLocaleDateString('en-US', opts);
+  }
+
+  // ===== NEWS API =====
+  async function loadNews(apiKey) {
+    const categories = [
+      { id: 'india', slidesId: 'indiaNewsSlides', dotsId: 'indiaNewsDots',
+        q: 'India', lang: 'en', country: 'in' },
+      { id: 'business', slidesId: 'businessNewsSlides', dotsId: 'businessNewsDots',
+        category: 'business', country: 'in' },
+      { id: 'world', slidesId: 'worldNewsSlides', dotsId: 'worldNewsDots',
+        q: 'world', lang: 'en' },
+      { id: 'sports', slidesId: 'sportsNewsSlides', dotsId: 'sportsNewsDots',
+        category: 'sports', country: 'in' },
+      { id: 'science', slidesId: 'scienceNewsSlides', dotsId: 'scienceNewsDots',
+        category: 'science' },
+      { id: 'gsis', slidesId: 'gsisNewsSlides', dotsId: 'gsisNewsDots',
+        q: 'GSIS school India' }
+    ];
+
+    for (const cat of categories) {
+      try {
+        let url = `https://newsapi.org/v2/`;
+        if (cat.category) {
+          url += `top-headlines?category=${cat.category}&pageSize=7&apiKey=${apiKey}`;
+          if (cat.country) url += `&country=${cat.country}`;
+        } else {
+          url += `everything?q=${encodeURIComponent(cat.q)}&pageSize=7&language=${cat.lang || 'en'}&sortBy=publishedAt&apiKey=${apiKey}`;
+        }
+
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.articles && data.articles.length > 0) {
+          renderNewsWidget(cat.slidesId, cat.dotsId, data.articles.slice(0, 7));
+        }
+      } catch (err) {
+        console.log(`News load error for ${cat.id}:`, err);
+      }
+    }
+  }
+
+  function renderNewsWidget(slidesId, dotsId, articles) {
+    const slidesContainer = document.getElementById(slidesId);
+    const dotsContainer = document.getElementById(dotsId);
+    if (!slidesContainer || !dotsContainer) return;
+
+    slidesContainer.innerHTML = '';
+    dotsContainer.innerHTML = '';
+
+    articles.forEach((article, i) => {
+      const slide = document.createElement('div');
+      slide.className = 'news-slide' + (i === 0 ? ' active' : '');
+
+      const imgHtml = article.urlToImage
+        ? `<img src="${article.urlToImage}" class="news-img" onerror="this.style.display='none'" alt=""/>`
+        : `<div class="news-img-placeholder">📰</div>`;
+
+      slide.innerHTML = `
+        ${imgHtml}
+        <p class="news-headline">${article.title || ''}</p>
+        ${article.url ? `<a href="${article.url}" target="_blank" style="font-size:11px;color:var(--accent-blue);text-decoration:none;display:block;margin-top:6px;">Read more →</a>` : ''}
+      `;
+      slidesContainer.appendChild(slide);
+
+      const dot = document.createElement('div');
+      dot.className = 'news-dot' + (i === 0 ? ' active' : '');
+      dot.onclick = () => goToSlide(slidesId, dotsId, i);
+      dotsContainer.appendChild(dot);
+    });
+
+    // Auto-rotate every 7 seconds
+    let current = 0;
+    setInterval(() => {
+      current = (current + 1) % articles.length;
+      goToSlide(slidesId, dotsId, current);
+    }, 7000);
+  }
+
+  window.goToSlide = (slidesId, dotsId, index) => {
+    const slides = document.getElementById(slidesId).querySelectorAll('.news-slide');
+    const dots = document.getElementById(dotsId).querySelectorAll('.news-dot');
+    slides.forEach((s, i) => s.classList.toggle('active', i === index));
+    dots.forEach((d, i) => d.classList.toggle('active', i === index));
+  };
+
+  // ===== HOUSE NEWS =====
+  async function loadHouseNews() {
+    const { data: news } = await supabase
+      .from('house_news')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(7);
+
+    if (!news || news.length === 0) {
+      document.getElementById('houseNewsSlides').innerHTML =
+        '<p style="color:var(--text-muted);font-size:12px;">No house news yet.</p>';
+      return;
+    }
+
+    const articles = news.map(n => ({
+      title: n.title,
+      description: n.description,
+      urlToImage: n.image_url,
+      url: null
+    }));
+
+    renderNewsWidget('houseNewsSlides', 'houseNewsDots', articles);
+  }
+
+  window.addHouseNews = async () => {
+    const title = document.getElementById('hnTitle').value.trim();
+    const description = document.getElementById('hnDesc').value.trim();
+    const image_url = document.getElementById('hnImg').value.trim();
+
+    if (!title || !description) { showToast('Fill in all fields', 'error'); return; }
+
+    const { error } = await supabase.from('house_news').insert({
+      title, description, image_url: image_url || null,
+      created_by: currentUser.id
+    });
+
+    if (error) { showToast('Error adding news', 'error'); return; }
+    showToast('House news added!', 'success');
+    closeModal('addHouseNewsModal');
+    loadHouseNews();
+  };
+
+  // ===== SLIDERS =====
+  async function loadSliders() {
+    const today = new Date().toISOString().split('T')[0];
+    const { data: sliders } = await supabase
+      .from('sliders')
+      .select('*')
+      .eq('date', today)
+      .eq('is_active', true);
+
+    if (!sliders || sliders.length === 0) {
+      document.getElementById('sliderSection').style.display = 'none';
+      return;
+    }
+
+    document.getElementById('sliderSection').style.display = 'block';
+    const container = document.getElementById('slidersContainer');
+    container.innerHTML = '';
+
+    for (const slider of sliders) {
+      // Check if user already responded
+      const { data: existing } = await supabase
+        .from('slider_responses')
+        .select('*')
+        .eq('slider_id', slider.id)
+        .eq('user_id', currentUser.id)
+        .single();
+
+      const card = document.createElement('div');
+      card.className = 'slider-card';
+
+      if (existing) {
+        card.innerHTML = `
+          <div class="slider-question">${slider.question}</div>
+          <p style="color:var(--success);font-size:13px;">✓ You responded: <strong>${existing.value}/10</strong></p>
+        `;
+      } else {
+        card.innerHTML = `
+          <div class="slider-question">${slider.question}</div>
+          <div class="slider-input-wrap">
+            <span>${slider.min_label}</span>
+            <input type="range" min="1" max="10" value="5" id="slider_${slider.id}"
+              oninput="document.getElementById('sliderVal_${slider.id}').textContent=this.value"/>
+            <span>${slider.max_label}</span>
+            <div class="slider-value-badge" id="sliderVal_${slider.id}">5</div>
+          </div>
+          <button class="btn btn-primary btn-submit-slider"
+            onclick="submitSlider('${slider.id}')">Submit Response</button>
+        `;
+      }
+      container.appendChild(card);
+    }
+  }
+
+  window.addSlider = async () => {
+    const question = document.getElementById('sliderQ').value.trim();
+    const min_label = document.getElementById('sliderMin').value.trim() || 'Bad';
+    const max_label = document.getElementById('sliderMax').value.trim() || 'Great';
+
+    if (!question) { showToast('Enter a question', 'error'); return; }
+
+    const { error } = await supabase.from('sliders').insert({
+      question, min_label, max_label,
+      date: new Date().toISOString().split('T')[0],
+      created_by: currentUser.id
+    });
+
+    if (error) { showToast('Error adding slider', 'error'); return; }
+    showToast('Slider added!', 'success');
+    closeModal('addSliderModal');
+    loadSliders();
+  };
+
+  window.submitSlider = async (sliderId) => {
+    const val = document.getElementById(`slider_${sliderId}`).value;
+    const { error } = await supabase.from('slider_responses').insert({
+      slider_id: sliderId,
+      user_id: currentUser.id,
+      value: parseInt(val)
+    });
+
+    if (error) { showToast('Error submitting', 'error'); return; }
+    showToast('Response saved!', 'success');
+    loadSliders();
+  };
+
+  // ===== CALENDAR =====
+  async function loadCalendarEvents() {
+    const { data: events } = await supabase
+      .from('calendar_events')
+      .select('*');
+    calendarEvents = events || [];
+    renderCalendar();
+  }
+
+  window.renderCalendar = () => {
+    const months = ['January','February','March','April','May','June',
+                    'July','August','September','October','November','December'];
+    document.getElementById('calMonthYear').textContent =
+      `${months[calendarMonth]} ${calendarYear}`;
+
+    const grid = document.getElementById('calendarGrid');
+    grid.innerHTML = '';
+
+    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => {
+      const el = document.createElement('div');
+      el.className = 'cal-day-header';
+      el.textContent = d;
+      grid.appendChild(el);
+    });
+
+    const firstDay = new Date(calendarYear, calendarMonth, 1).getDay();
+    const daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+    const today = new Date();
+
+    for (let i = 0; i < firstDay; i++) {
+      const el = document.createElement('div');
+      el.className = 'cal-day empty';
+      grid.appendChild(el);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${calendarYear}-${String(calendarMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const dayEvents = calendarEvents.filter(e => e.event_date === dateStr);
+
+      const el = document.createElement('div');
+      let cls = 'cal-day';
+      if (d === today.getDate() && calendarMonth === today.getMonth() && calendarYear === today.getFullYear())
+        cls += ' today';
+      if (dayEvents.length > 0) cls += ' has-event';
+      el.className = cls;
+      el.textContent = d;
+
+      if (dayEvents.length > 0) {
+        const tooltip = document.createElement('div');
+        tooltip.className = 'event-tooltip';
+        tooltip.innerHTML = dayEvents.map(e => `<div>📌 ${e.title}</div>`).join('');
+        el.appendChild(tooltip);
+      }
+
+      grid.appendChild(el);
+    }
+  };
+
+  window.changeMonth = (dir) => {
+    calendarMonth += dir;
+    if (calendarMonth < 0) { calendarMonth = 11; calendarYear--; }
+    if (calendarMonth > 11) { calendarMonth = 0; calendarYear++; }
+    renderCalendar();
+  };
+
+  window.addCalendarEvent = async () => {
+    const title = document.getElementById('evTitle').value.trim();
+    const event_date = document.getElementById('evDate').value;
+    const description = document.getElementById('evDesc').value.trim();
+    const color = document.getElementById('evColor').value;
+
+    if (!title || !event_date) { showToast('Fill in all fields', 'error'); return; }
+
+    const { error } = await supabase.from('calendar_events').insert({
+      title, event_date, description, color,
+      created_by: currentUser.id
+    });
+
+    if (error) { showToast('Error adding event', 'error'); return; }
+    showToast('Event added!', 'success');
+    closeModal('addEventModal');
+    loadCalendarEvents();
+  };
+
+  // ===== LOGOUT =====
+  window.logout = async () => {
+    await signOut(auth);
+    localStorage.removeItem('wh_user');
+    window.location.href = 'login.html';
+  };
+
+  // ===== MODAL HELPERS =====
+  window.openModal = (id) => document.getElementById(id).classList.add('open');
+  window.closeModal = (id) => document.getElementById(id).classList.remove('open');
+
+  // ===== TOAST =====
+  window.showToast = (msg, type = 'info') => {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast ${type} show`;
+    setTimeout(() => t.classList.remove('show'), 3000);
+  };
+</script>
+</body>
+</html>
