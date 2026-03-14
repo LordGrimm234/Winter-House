@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Winter House – Login</title>
+  <link rel="stylesheet" href="css/global.css"/>
+  <style>
+    body {
+      background: #0f1117;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .login-container {
+      background: #1a1d27;
+      border: 1px solid #2a2d3e;
+      border-radius: 16px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+
+    .login-logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .login-logo h1 {
+      color: #fff;
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .login-logo span {
+      color: #6c8ebf;
+    }
+
+    .login-logo p {
+      color: #888;
+      margin: 4px 0 0;
+      font-size: 14px;
+    }
+
+    .snowflake-icon {
+      font-size: 48px;
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      color: #aaa;
+      font-size: 13px;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .form-group input {
+      width: 100%;
+      background: #0f1117;
+      border: 1px solid #2a2d3e;
+      border-radius: 8px;
+      padding: 12px 16px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+      box-sizing: border-box;
+    }
+
+    .form-group input:focus {
+      border-color: #6c8ebf;
+    }
+
+    .btn-login {
+      width: 100%;
+      background: linear-gradient(135deg, #6c8ebf, #4a6fa5);
+      border: none;
+      border-radius: 8px;
+      padding: 13px;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      margin-top: 8px;
+    }
+
+    .btn-login:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .btn-login:active {
+      transform: translateY(0);
+    }
+
+    .register-link {
+      text-align: center;
+      margin-top: 20px;
+      color: #888;
+      font-size: 13px;
+    }
+
+    .register-link a {
+      color: #6c8ebf;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .error-msg {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .tab-switcher {
+      display: flex;
+      background: #0f1117;
+      border-radius: 8px;
+      padding: 4px;
+      margin-bottom: 28px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      background: transparent;
+      color: #888;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: #6c8ebf;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-container">
+  <div class="login-logo">
+    <span class="snowflake-icon">❄️</span>
+    <h1>Winter <span>House</span></h1>
+    <p>Tahr Central Portal</p>
+  </div>
+
+  <div class="tab-switcher">
+    <button class="tab-btn active" id="loginTab" onclick="switchTab('login')">Sign In</button>
+    <button class="tab-btn" id="registerTab" onclick="switchTab('register')">Register</button>
+  </div>
+
+  <div id="errorMsg" class="error-msg"></div>
+
+  <!-- LOGIN FORM -->
+  <form id="loginForm" onsubmit="handleLogin(event)">
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" id="loginEmail" placeholder="your@email.com" required/>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="loginPassword" placeholder="••••••••" required/>
+    </div>
+    <button type="submit" class="btn-login">Sign In →</button>
+  </form>
+
+  <!-- REGISTER FORM -->
+  <form id="registerForm" style="display:none;" onsubmit="handleRegister(event)">
+    <div class="form-group">
+      <label>Full Name</label>
+      <input type="text" id="regName" placeholder="John Doe" required/>
+    </div>
+    <div class="form-group">
+      <label>Roll Number</label>
+      <input type="text" id="regRoll" placeholder="e.g. WH2024001" required/>
+    </div>
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" id="regEmail" placeholder="your@email.com" required/>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="regPassword" placeholder="Min 6 characters" required/>
+    </div>
+    <button type="submit" class="btn-login">Create Account →</button>
+  </form>
+</div>
+
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword }
+    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+  // ⚠️ REPLACE WITH YOUR KEYS
+  const firebaseConfig = {
+    apiKey: "AIzaSyBzy-i81YhgrGoSfIFHbNT-Xxem-fbo94E",
+    authDomain: "winter-house-d3132.firebaseapp.com",
+    projectId: "winter-house-d3132",
+    storageBucket: "winter-house-d3132.firebasestorage.app",
+    messagingSenderId: "678128530195",
+    appId: "1:678128530195:web:464d6dedf0846070c220e6"
+  };
+
+  const SUPABASE_URL = "https://dwjsprcfncwbcizvukyu.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR3anNwcmNmbmN3YmNpenZ1a3l1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0NTU0MTUsImV4cCI6MjA4OTAzMTQxNX0.StzyQwnuvdq7YRGUOnLey9Sr842HnAGEQecgeO63p7U";
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  window.handleLogin = async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    const errorDiv = document.getElementById('errorMsg');
+    errorDiv.style.display = 'none';
+
+    try {
+      const userCred = await signInWithEmailAndPassword(auth, email, password);
+      const uid = userCred.user.uid;
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('firebase_uid', uid)
+        .single();
+
+      if (profile) {
+        localStorage.setItem('wh_user', JSON.stringify(profile));
+        window.location.href = 'index.html';
+      } else {
+        errorDiv.textContent = 'Profile not found. Please register first.';
+        errorDiv.style.display = 'block';
+      }
+    } catch (err) {
+      errorDiv.textContent = err.message;
+      errorDiv.style.display = 'block';
+    }
+  };
+
+  window.handleRegister = async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('regName').value;
+    const roll = document.getElementById('regRoll').value;
+    const email = document.getElementById('regEmail').value;
+    const password = document.getElementById('regPassword').value;
+    const errorDiv = document.getElementById('errorMsg');
+    errorDiv.style.display = 'none';
+
+    try {
+      const userCred = await createUserWithEmailAndPassword(auth, email, password);
+      const uid = userCred.user.uid;
+
+      const { error } = await supabase.from('profiles').insert({
+        id: crypto.randomUUID(),
+        firebase_uid: uid,
+        name: name,
+        roll_number: roll,
+        email: email,
+        is_admin: false,
+        xp: 0
+      });
+
+      if (error) throw error;
+
+      errorDiv.style.background = 'rgba(34,197,94,0.15)';
+      errorDiv.style.borderColor = 'rgba(34,197,94,0.3)';
+      errorDiv.style.color = '#22c55e';
+      errorDiv.textContent = '✓ Account created! Please sign in.';
+      errorDiv.style.display = 'block';
+      switchTab('login');
+    } catch (err) {
+      errorDiv.textContent = err.message;
+      errorDiv.style.display = 'block';
+    }
+  };
+
+  window.switchTab = (tab) => {
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const loginTab = document.getElementById('loginTab');
+    const registerTab = document.getElementById('registerTab');
+
+    if (tab === 'login') {
+      loginForm.style.display = 'block';
+      registerForm.style.display = 'none';
+      loginTab.classList.add('active');
+      registerTab.classList.remove('active');
+    } else {
+      loginForm.style.display = 'none';
+      registerForm.style.display = 'block';
+      loginTab.classList.remove('active');
+      registerTab.classList.add('active');
+    }
+  };
+</script>
+</body>
+</html>
