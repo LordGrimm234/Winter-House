@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Check In – Winter House</title>
+  <link rel="stylesheet" href="css/global.css"/>
+  <style>
+
+    /* ===== CHECK IN HERO ===== */
+    .checkin-hero {
+      background: linear-gradient(135deg, #0d1f0d, #0a2a0a, #051a05);
+      border: 1px solid #1a4a1a;
+      border-radius: 16px;
+      padding: 40px;
+      text-align: center;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .checkin-hero::before {
+      content: '';
+      position: absolute;
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(34,197,94,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .checkin-hero h2 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+
+    .checkin-hero p {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 28px;
+    }
+
+    /* Location Card */
+    .location-active-card {
+      background: rgba(34,197,94,0.07);
+      border: 1px solid rgba(34,197,94,0.25);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 28px;
+      max-width: 420px;
+      width: 100%;
+    }
+
+    .location-pulse {
+      width: 14px;
+      height: 14px;
+      background: var(--success);
+      border-radius: 50%;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .location-pulse::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 2px solid var(--success);
+      animation: pulse-ring 1.5s ease-out infinite;
+    }
+
+    @keyframes pulse-ring {
+      0%   { transform: scale(1); opacity: 0.8; }
+      100% { transform: scale(2); opacity: 0; }
+    }
+
+    .location-info {
+      text-align: left;
+    }
+
+    .location-info .loc-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .location-info .loc-sub {
+      font-size: 12px;
+      color: var(--success);
+      margin-top: 2px;
+    }
+
+    .no-location-card {
+      background: rgba(239,68,68,0.07);
+      border: 1px dashed rgba(239,68,68,0.3);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+      color: #ef4444;
+      font-size: 13px;
+      max-width: 420px;
+      width: 100%;
+    }
+
+    /* Big Check In Button */
+    .btn-checkin-big {
+      background: linear-gradient(135deg, #16a34a, #15803d);
+      border: none;
+      border-radius: 50px;
+      padding: 18px 52px;
+      color: #fff;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s;
+      box-shadow: 0 4px 24px rgba(22,163,74,0.35);
+      letter-spacing: 0.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-checkin-big:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(22,163,74,0.5);
+      background: linear-gradient(135deg, #15803d, #166534);
+    }
+
+    .btn-checkin-big:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .btn-checkin-big:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .btn-checkin-big .btn-spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+
+    .btn-checkin-big.loading .btn-spinner {
+      display: block;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Status Message */
+    .checkin-status {
+      margin-top: 20px;
+      padding: 14px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      display: none;
+      max-width: 420px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .checkin-status.success {
+      display: block;
+      background: rgba(34,197,94,0.12);
+      border: 1px solid rgba(34,197,94,0.3);
+      color: var(--success);
+    }
+
+    .checkin-status.error {
+      display: block;
+      background: rgba(239,68,68,0.12);
+      border: 1px solid rgba(239,68,68,0.3);
+      color: #ef4444;
+    }
+
+    .checkin-status.warning {
+      display: block;
+      background: rgba(245,158,11,0.12);
+      border: 1px solid rgba(245,158,11,0.3);
+      color: var(--warning);
+    }
+
+    /* Distance Meter */
+    .distance-display {
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--text-muted);
+      display: none;
+    }
+
+    .distance-display.show {
+      display: block;
+    }
+
+    .distance-bar-wrap {
+      background: rgba(0,0,0,0.3);
+      border-radius: 20px;
+      height: 8px;
+      max-width: 320px;
+      margin: 8px auto 0;
+      overflow: hidden;
+    }
+
+    .distance-bar-fill {
+      height: 100%;
+      border-radius: 20px;
+      transition: width 0.6s ease, background 0.3s;
+    }
+
+    /* ===== ADMIN PANEL ===== */
+    .admin-location-panel {
+      background: linear-gradient(135deg, #1f1500, #2a1c00);
+      border: 1px solid #4a3000;
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 28px;
+    }
+
+    .admin-location-panel .panel-title {
+      color: var(--warning);
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .saved-locations-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .saved-location-item {
+      background: rgba(0,0,0,0.25);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .saved-location-item .loc-detail {
+      flex: 1;
+    }
+
+    .saved-location-item .loc-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .saved-location-item .loc-coords {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 3px;
+      font-family: monospace;
+    }
+
+    .active-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--success);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .inactive-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .btn-set-active {
+      background: var(--success);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn-set-active:hover { opacity: 0.8; }
+
+    .btn-delete-loc {
+      background: rgba(239,68,68,0.15);
+      color: #ef4444;
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-delete-loc:hover {
+      background: rgba(239,68,68,0.25);
+    }
+
+    /* ===== HISTORY TABLE ===== */
+    .history-section {
+      margin-bottom: 28px;
+    }
+
+    .history-filters {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .history-filters input,
+    .history-filters select {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 14px;
+      color: var(--text-primary);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .history-filters input:focus,
+    .history-filters select:focus {
+      border-color: var(--accent-blue);
+    }
+
+    .history-table-wrap {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .history-table th {
+      background: var(--bg-hover);
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .history-table td {
+      padding: 13px 16px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid rgba(42,45,62,0.5);
+    }
+
+    .history-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .history-table tr:hover td {
+      background: rgba(255,255,255,0.02);
+    }
+
+    .present-badge {
+      background: rgba(34,197,94,0.12);
+      color: var(--success);
+      border: 1px solid rgba(34,197,94,0.25);
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .user-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-avatar-sm {
+      width: 30px;
+      height: 30px;
+      background: var(--accent-blue);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .user-name-sm {
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 13px;
+    }
+
+    .user-roll-sm {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Stats Row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .stat-card.green .stat-number { color: var(--success); }
+    .stat-card.blue .stat-number  { color: var(--accent-blue); }
+    .stat-card.gold .stat-number  { color: var(--warning); }
+
+    /* My Check-In History (user view) */
+    .my-history {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 24px;
+    }
+
+    .my-history-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--text-primary);
+    }
+
+    .my-history-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 0;
+      border-bottom: 1px solid rgba(42,45,62,0.5);
+    }
+
+    .my-history-item:last-child {
+      border-bottom: none;
+    }
+
+    .my-history-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .history-check-icon {
+      width: 34px;
+      height: 34px;
+      background: rgba(34,197,94,0.12);
+      border: 1px solid rgba(34,197,94,0.25);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .my-history-loc {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .my-history-date {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .my-history-time {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-align: right;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+    }
+
+    .empty-state .empty-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+
+    .empty-state p {
+      font-size: 14px;
+    }
+
+    /* Today already checked in banner */
+    .already-checked-in {
+      background: rgba(34,197,94,0.08);
+      border: 1px solid rgba(34,197,94,0.2);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+      max-width: 420px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .already-checked-in .check-big {
+      font-size: 28px;
+    }
+
+    .already-checked-in .info strong {
+      display: block;
+      font-size: 14px;
+      color: var(--success);
+    }
+
+    .already-checked-in .info span {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Tabs for Admin */
+    .tab-row {
+      display: flex;
+      gap: 4px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 20px;
+      width: fit-content;
+    }
+
+    .tab-pill {
+      padding: 8px 20px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+
+    .tab-pill.active {
+      background: var(--accent-blue);
+      color: #fff;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Export button */
+    .btn-export {
+      background: rgba(108,142,191,0.12);
+      border: 1px solid rgba(108,142,191,0.3);
+      color: var(--accent-blue);
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-export:hover {
+      background: rgba(108,142,191,0.22);
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-wrapper" id="pageWrapper">
+<div class="app-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-icon">❄️</span>
+      <div class="logo-text">
+        <h2>Winter House</h2>
+        <span>Tahr Central</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="index.html"         class="nav-item">
+        <span class="nav-icon">🏠</span> Dashboard
+      </a>
+      <a href="challenges.html"    class="nav-item">
+        <span class="nav-icon">⚔️</span> Challenges
+      </a>
+      <a href="info-hub.html"      class="nav-item">
+        <span class="nav-icon">👥</span> Info Hub
+      </a>
+      <a href="check-in.html"      class="nav-item active">
+        <span class="nav-icon">✅</span> Check In
+      </a>
+      <a href="hall-of-fame.html"  class="nav-item">
+        <span class="nav-icon">🏆</span> Hall of Fame
+      </a>
+      <a href="personal-chat.html" class="nav-item">
+        <span class="nav-icon">💬</span> Personal Chat
+      </a>
+      <a href="community.html"     class="nav-item">
+        <span class="nav-icon">📣</span> Community
+      </a>
+    </nav>
+    <div style="padding:16px 20px;border-top:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div id="sidebarAvatar"
+          style="width:32px;height:32px;background:var(--accent-blue);border-radius:50%;
+                 display:flex;align-items:center;justify-content:center;
+                 font-weight:700;font-size:13px;">?</div>
+        <div>
+          <div style="font-size:13px;font-weight:600;" id="sidebarName">Loading...</div>
+          <div style="font-size:11px;color:var(--text-muted);" id="sidebarRoll"></div>
+        </div>
+      </div>
+      <button onclick="logout()"
+        style="margin-top:10px;width:100%;background:transparent;
+               border:1px solid var(--border);color:var(--text-muted);
+               border-radius:6px;padding:8px;cursor:pointer;
+               font-size:12px;transition:all 0.2s;">
+        Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main-content">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1>✅ <span>Check In</span></h1>
+        <p id="dateDisplay">Loading date...</p>
+      </div>
+      <div class="topbar-right">
+        <div class="quote-badge">❄️ "Winter is Coming..."</div>
+      </div>
+    </div>
+
+    <!-- PAGE CONTENT -->
+    <div class="page-content">
+
+      <!-- ============================================================
+           ADMIN VIEW
+      ============================================================ -->
+      <div id="adminView" style="display:none;">
+
+        <!-- Stats -->
+        <div class="stats-row" id="adminStats">
+          <div class="stat-card green">
+            <div class="stat-number" id="statTodayCount">0</div>
+            <div class="stat-label">Checked In Today</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-number" id="statTotalCount">0</div>
+            <div class="stat-label">Total Check-Ins</div>
+          </div>
+          <div class="stat-card gold">
+            <div class="stat-number" id="statLocCount">0</div>
+            <div class="stat-label">Saved Locations</div>
+          </div>
+        </div>
+
+        <!-- Admin Tabs -->
+        <div class="tab-row">
+          <button class="tab-pill active" onclick="switchAdminTab('locations')">
+            📍 Locations
+          </button>
+          <button class="tab-pill" onclick="switchAdminTab('history')">
+            📋 Attendance History
+          </button>
+        </div>
+
+        <!-- TAB: Locations -->
+        <div id="tabLocations" class="tab-content active">
+          <div class="admin-location-panel">
+            <div class="panel-title">⚙️ Manage Check-In Locations</div>
+
+            <div class="saved-locations-list" id="savedLocationsList">
+              <p style="color:var(--text-muted);font-size:13px;">
+                No locations saved yet.
+              </p>
+            </div>
+
+            <button class="btn btn-primary"
+              onclick="openModal('addLocationModal')">
+              + Add New Location
+            </button>
+          </div>
+        </div>
+
+        <!-- TAB: History -->
+        <div id="tabHistory" class="tab-content">
+          <div class="history-section">
+            <div class="section-header">
+              <div>
+                <div class="section-title">Attendance History</div>
+                <div class="section-subtitle">
+                  Full log of all check-ins
+                </div>
+              </div>
+              <button class="btn-export" onclick="exportCSV()">
+                ⬇ Export CSV
+              </button>
+            </div>
+
+            <!-- Filters -->
+            <div class="history-filters">
+              <input type="date" id="filterDate"
+                onchange="filterHistory()"
+                placeholder="Filter by date"/>
+              <input type="text" id="filterName"
+                oninput="filterHistory()"
+                placeholder="Search by name / roll..."/>
+              <select id="filterLocation" onchange="filterHistory()">
+                <option value="">All Locations</option>
+              </select>
+              <button class="btn btn-outline" onclick="clearFilters()">
+                Clear
+              </button>
+            </div>
+
+            <div class="history-table-wrap">
+              <table class="history-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Student</th>
+                    <th>Roll No.</th>
+                    <th>Location</th>
+                    <th>Day</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="historyTableBody">
+                  <tr>
+                    <td colspan="8" style="text-align:center;
+                        color:var(--text-muted);padding:30px;">
+                      Loading history...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /adminView -->
+
+      <!-- ============================================================
+           USER VIEW
+      ============================================================ -->
+      <div id="userView" style="display:none;">
+
+        <!-- Check-In Hero Card -->
+        <div class="checkin-hero">
+          <h2>📍 Mark Your Attendance</h2>
+          <p>
+            Make sure you are physically present at the location.<br/>
+            You must be within <strong>30 metres</strong> to check in.
+          </p>
+
+          <!-- Active location display -->
+          <div id="activeLocationDisplay"></div>
+
+          <!-- Already checked in today -->
+          <div id="alreadyCheckedIn"
+            class="already-checked-in" style="display:none;">
+            <span class="check-big">✅</span>
+            <div class="info">
+              <strong>You're already checked in today!</strong>
+              <span id="alreadyCheckedTime"></span>
+            </div>
+          </div>
+
+          <!-- Check In Button -->
+          <button class="btn-checkin-big" id="checkInBtn"
+            onclick="doCheckIn()">
+            <div class="btn-spinner"></div>
+            <span id="checkInBtnText">📍 Check In Now</span>
+          </button>
+
+          <!-- Status Message -->
+          <div class="checkin-status" id="checkinStatus"></div>
+
+          <!-- Distance Meter -->
+          <div class="distance-display" id="distanceDisplay">
+            <div id="distanceText"></div>
+            <div class="distance-bar-wrap">
+              <div class="distance-bar-fill"
+                id="distanceBarFill" style="width:0%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- My History -->
+        <div class="my-history">
+          <div class="my-history-title">My Check-In History</div>
+          <div id="myHistoryList">
+            <div class="empty-state">
+              <div class="empty-icon">📋</div>
+              <p>No check-ins yet</p>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /userView -->
+
+    </div><!-- /page-content -->
+  </main>
+</div>
+</div><!-- /page-wrapper -->
+
+<!-- ===== TOAST ===== -->
+<div class="toast" id="toast"></div>
+
+<!-- ===== MODAL: Add Location ===== -->
+<div class="modal-overlay" id="addLocationModal">
+  <div class="modal">
+    <button class="modal-close"
+      onclick="closeModal('addLocationModal')">✕</button>
+    <h2>📍 Save New Location</h2>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">
+      Enter a title, then click <strong>Capture My Location</strong>.
+      Make sure you are standing at the check-in spot.
+    </p>
+
+    <div class="form-group">
+      <label>Location Title</label>
+      <input type="text" id="locTitle"
+        placeholder="e.g. Main Hall, Classroom 4B..."/>
+    </div>
+
+    <!-- Capture step -->
+    <div id="captureStep">
+      <button class="btn btn-primary" style="width:100%"
+        onclick="captureLocation()">
+        📡 Capture My Location
+      </button>
+    </div>
+
+    <!-- Coords display (hidden until captured) -->
+    <div id="capturedCoordsDisplay" style="display:none;
+      background:rgba(34,197,94,0.08);
+      border:1px solid rgba(34,197,94,0.25);
+      border-radius:8px;padding:12px 16px;margin:12px 0;">
+      <p style="font-size:12px;color:var(--success);font-weight:600;">
+        ✅ Location Captured
+      </p>
+      <p id="capturedCoordsText"
+        style="font-size:11px;color:var(--text-muted);
+               font-family:monospace;margin-top:4px;"></p>
+    </div>
+
+    <div id="saveCapturedBtn" style="display:none;margin-top:8px;">
+      <button class="btn btn-success" style="width:100%"
+        onclick="saveLocation()">
+        💾 Save Location
+      </button>
+    </div>
+
+    <div id="locErrorMsg"
+      style="margin-top:10px;font-size:13px;
+             color:#ef4444;display:none;"></div>
+  </div>
+</div>
+
+<!-- ===== FIREBASE + SUPABASE ===== -->
+<script type="module">
+import { initializeApp }
+  from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut }
+  from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { createClient }
+  from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+/* ============================================================
+   ⚠️  REPLACE THESE WITH YOUR OWN KEYS
+============================================================ */
+const firebaseConfig = {
+  apiKey:            "YOUR_FIREBASE_API_KEY",
+  authDomain:        "YOUR_PROJECT.firebaseapp.com",
+  projectId:         "YOUR_PROJECT_ID",
+  storageBucket:     "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId:             "YOUR_APP_ID"
+};
+const SUPABASE_URL      = "YOUR_SUPABASE_URL";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+/* ========================================================== */
+
+const fbApp   = initializeApp(firebaseConfig);
+const auth    = getAuth(fbApp);
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/* ---- state ---- */
+let currentUser      = null;
+let capturedCoords   = null;   // temp during modal
+let activeLocation   = null;   // the currently-active saved location
+let allCheckIns      = [];     // admin full history cache
+let myCheckIns       = [];     // user personal history cache
+
+/* ============================================================
+   AUTH GUARD
+============================================================ */
+onAuthStateChanged(auth, async (fbUser) => {
+  if (!fbUser) { window.location.href = 'login.html'; return; }
+
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('firebase_uid', fbUser.uid)
+    .single();
+
+  if (!profile) { window.location.href = 'login.html'; return; }
+
+  currentUser = profile;
+  localStorage.setItem('wh_user', JSON.stringify(profile));
+
+  /* sidebar */
+  document.getElementById('pageWrapper').classList.add('loaded');
+  document.getElementById('sidebarName').textContent   = profile.name;
+  document.getElementById('sidebarRoll').textContent   = profile.roll_number;
+  document.getElementById('sidebarAvatar').textContent =
+    profile.name.charAt(0).toUpperCase();
+
+  /* date */
+  const now  = new Date();
+  const opts = {
+    weekday:'long', year:'numeric',
+    month:'long',   day:'numeric',
+    hour:'2-digit', minute:'2-digit'
+  };
+  document.getElementById('dateDisplay')
+    .textContent = now.toLocaleDateString('en-US', opts);
+
+  /* route to correct view */
+  if (profile.is_admin) {
+    document.getElementById('adminView').style.display = 'block';
+    await loadAdminData();
+  } else {
+    document.getElementById('userView').style.display = 'block';
+    await loadActiveLocation();
+    await checkAlreadyCheckedIn();
+    await loadMyHistory();
+  }
+});
+
+/* ============================================================
+   HELPERS – Distance (Haversine)
+============================================================ */
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R    = 6371000;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a    =
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) *
+    Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+/* ============================================================
+   ADMIN – Load Data
+============================================================ */
+async function loadAdminData() {
+  await Promise.all([
+    loadSavedLocations(),
+    loadAllCheckIns()
+  ]);
+}
+
+/* --- Saved Locations --- */
+async function loadSavedLocations() {
+  const { data: locs } = await supabase
+    .from('admin_checkin_location')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  document.getElementById('statLocCount').textContent =
+    (locs || []).length;
+
+  const list = document.getElementById('savedLocationsList');
+
+  if (!locs || locs.length === 0) {
+    list.innerHTML =
+      '<p style="color:var(--text-muted);font-size:13px;">' +
+      'No locations saved yet.</p>';
+    return;
+  }
+
+  list.innerHTML = locs.map(loc => `
+    <div class="saved-location-item" id="locItem_${loc.id}">
+      <div class="${loc.is_active ? 'active-dot' : 'inactive-dot'}"></div>
+      <div class="loc-detail">
+        <div class="loc-name">
+          ${loc.location_title}
+          ${loc.is_active
+            ? '<span style="font-size:10px;background:rgba(34,197,94,0.15);color:var(--success);padding:2px 8px;border-radius:20px;margin-left:6px;">ACTIVE</span>'
+            : ''}
+        </div>
+        <div class="loc-coords">
+          ${Number(loc.latitude).toFixed(6)},
+          ${Number(loc.longitude).toFixed(6)}
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;">
+        ${!loc.is_active
+          ? `<button class="btn-set-active"
+               onclick="setActiveLocation('${loc.id}')">
+               Set Active
+             </button>`
+          : ''}
+        <button class="btn-delete-loc"
+          onclick="deleteLocation('${loc.id}')">🗑</button>
+      </div>
+    </div>
+  `).join('');
+
+  /* populate location filter dropdown */
+  const sel = document.getElementById('filterLocation');
+  sel.innerHTML = '<option value="">All Locations</option>';
+  locs.forEach(loc => {
+    const opt = document.createElement('option');
+    opt.value = loc.location_title;
+    opt.textContent = loc.location_title;
+    sel.appendChild(opt);
+  });
+}
+
+window.setActiveLocation = async (id) => {
+  /* deactivate all, then activate chosen */
+  await supabase
+    .from('admin_checkin_location')
+    .update({ is_active: false })
+    .neq('id', '00000000-0000-0000-0000-000000000000'); /* all rows */
+
+  await supabase
+    .from('admin_checkin_location')
+    .update({ is_active: true })
+    .eq('id', id);
+
+  showToast('Location set as active ✓', 'success');
+  await loadSavedLocations();
+};
+
+window.deleteLocation = async (id) => {
+  if (!confirm('Delete this location?')) return;
+  await supabase
+    .from('admin_checkin_location')
+    .delete()
+    .eq('id', id);
+  showToast('Location deleted', 'info');
+  await loadSavedLocations();
+};
+
+/* --- All Check-Ins (admin history) --- */
+async function loadAllCheckIns() {
+  const { data: checkins } = await supabase
+    .from('check_ins')
+    .select(`
+      *,
+      profiles ( name, roll_number )
+    `)
+    .order('checked_in_at', { ascending: false });
+
+  allCheckIns = checkins || [];
+
+  /* stats */
+  const today = new Date().toISOString().split('T')[0];
+  const todayCount = allCheckIns.filter(
+    c => c.date === today
+  ).length;
+
+  document.getElementById('statTodayCount').textContent = todayCount;
+  document.getElementById('statTotalCount').textContent = allCheckIns.length;
+
+  renderHistoryTable(allCheckIns);
+}
+
+function renderHistoryTable(data) {
+  const tbody = document.getElementById('historyTableBody');
+
+  if (!data || data.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="8" style="text-align:center;
+          color:var(--text-muted);padding:40px;">
+          <div style="font-size:28px;margin-bottom:8px;">📋</div>
+          No check-ins found
+        </td>
+      </tr>`;
+    return;
+  }
+
+  tbody.innerHTML = data.map((c, i) => {
+    const dt       = new Date(c.checked_in_at);
+    const dayName  = dt.toLocaleDateString('en-US', { weekday: 'long' });
+    const dateStr  = dt.toLocaleDateString('en-US',
+      { year:'numeric', month:'short', day:'numeric' });
+    const timeStr  = dt.toLocaleTimeString('en-US',
+      { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+    const name     = c.profiles?.name        || 'Unknown';
+    const roll     = c.profiles?.roll_number || '—';
+    const initial  = name.charAt(0).toUpperCase();
+
+    return `
+      <tr>
+        <td style="color:var(--text-muted);">${i + 1}</td>
+        <td>
+          <div class="user-cell">
+            <div class="user-avatar-sm">${initial}</div>
+            <div>
+              <div class="user-name-sm">${name}</div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <code style="background:var(--bg-hover);padding:2px 6px;
+            border-radius:4px;font-size:11px;">${roll}</code>
+        </td>
+        <td>📍 ${c.location}</td>
+        <td>${dayName}</td>
+        <td>${dateStr}</td>
+        <td style="font-family:monospace;font-size:12px;">${timeStr}</td>
+        <td><span class="present-badge">✓ Present</span></td>
+      </tr>`;
+  }).join('');
+}
+
+/* --- Filters --- */
+window.filterHistory = () => {
+  const date    = document.getElementById('filterDate').value;
+  const search  = document.getElementById('filterName')
+    .value.toLowerCase();
+  const locFilt = document.getElementById('filterLocation').value;
+
+  let filtered = [...allCheckIns];
+
+  if (date) {
+    filtered = filtered.filter(c => c.date === date);
+  }
+  if (search) {
+    filtered = filtered.filter(c =>
+      (c.profiles?.name        || '').toLowerCase().includes(search) ||
+      (c.profiles?.roll_number || '').toLowerCase().includes(search)
+    );
+  }
+  if (locFilt) {
+    filtered = filtered.filter(c => c.location === locFilt);
+  }
+
+  renderHistoryTable(filtered);
+};
+
+window.clearFilters = () => {
+  document.getElementById('filterDate').value     = '';
+  document.getElementById('filterName').value     = '';
+  document.getElementById('filterLocation').value = '';
+  renderHistoryTable(allCheckIns);
+};
+
+/* --- CSV Export --- */
+window.exportCSV = () => {
+  if (!allCheckIns.length) {
+    showToast('No data to export', 'error'); return;
+  }
+
+  const headers = ['#','Name','Roll Number','Location',
+                   'Day','Date','Time'];
+  const rows = allCheckIns.map((c, i) => {
+    const dt      = new Date(c.checked_in_at);
+    const dayName = dt.toLocaleDateString('en-US',
+      { weekday:'long' });
+    const dateStr = dt.toLocaleDateString('en-US',
+      { year:'numeric', month:'short', day:'numeric' });
+    const timeStr = dt.toLocaleTimeString('en-US',
+      { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+    return [
+      i + 1,
+      c.profiles?.name        || '',
+      c.profiles?.roll_number || '',
+      c.location,
+      dayName, dateStr, timeStr
+    ];
+  });
+
+  const csv = [headers, ...rows]
+    .map(r => r.map(v => `"${v}"`).join(','))
+    .join('\n');
+
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `checkin_history_${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+/* --- Admin Tab Switch --- */
+window.switchAdminTab = (tab) => {
+  document.querySelectorAll('.tab-pill').forEach((btn, i) => {
+    btn.classList.toggle('active',
+      (tab === 'locations' && i === 0) ||
+      (tab === 'history'   && i === 1)
+    );
+  });
+  document.getElementById('tabLocations').classList
+    .toggle('active', tab === 'locations');
+  document.getElementById('tabHistory').classList
+    .toggle('active', tab === 'history');
+};
+
+/* ============================================================
+   ADMIN – Capture & Save New Location (Modal)
+============================================================ */
+window.captureLocation = () => {
+  const title = document.getElementById('locTitle').value.trim();
+  const errEl = document.getElementById('locErrorMsg');
+  errEl.style.display = 'none';
+
+  if (!title) {
+    errEl.textContent = 'Please enter a location title first.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  if (!navigator.geolocation) {
+    errEl.textContent = 'Geolocation is not supported by this browser.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const captureBtn = document.querySelector('#captureStep button');
+  captureBtn.textContent = '📡 Detecting...';
+  captureBtn.disabled    = true;
+
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      capturedCoords = {
+        lat: pos.coords.latitude,
+        lon: pos.coords.longitude
+      };
+
+      document.getElementById('capturedCoordsText').textContent =
+        `Lat: ${capturedCoords.lat.toFixed(6)}  ` +
+        `Lon: ${capturedCoords.lon.toFixed(6)}  ` +
+        `Accuracy: ±${pos.coords.accuracy.toFixed(0)}m`;
+
+      document.getElementById('capturedCoordsDisplay')
+        .style.display = 'block';
+      document.getElementById('saveCapturedBtn')
+        .style.display = 'block';
+
+      captureBtn.textContent = '📡 Re-Capture Location';
+      captureBtn.disabled    = false;
+    },
+    (err) => {
+      errEl.textContent = `GPS Error: ${err.message}. ` +
+        'Allow location access and try again.';
+      errEl.style.display = 'block';
+      captureBtn.textContent = '📡 Capture My Location';
+      captureBtn.disabled    = false;
+    },
+    { enableHighAccuracy: true, timeout: 15000 }
+  );
+};
+
+window.saveLocation = async () => {
+  const title = document.getElementById('locTitle').value.trim();
+
+  if (!title || !capturedCoords) {
+    showToast('Capture location first', 'error'); return;
+  }
+
+  /* deactivate all existing, make new one active */
+  await supabase
+    .from('admin_checkin_location')
+    .update({ is_active: false })
+    .neq('id', '00000000-0000-0000-0000-000000000000');
+
+  const { error } = await supabase
+    .from('admin_checkin_location')
+    .insert({
+      location_title: title,
+      latitude:       capturedCoords.lat,
+      longitude:      capturedCoords.lon,
+      is_active:      true,
+      created_by:     currentUser.id
+    });
+
+  if (error) { showToast('Error saving location', 'error'); return; }
+
+  showToast(`"${title}" saved & set as active ✓`, 'success');
+  closeModal('addLocationModal');
+
+  /* reset modal state */
+  document.getElementById('locTitle').value           = '';
+  document.getElementById('capturedCoordsDisplay')
+    .style.display = 'none';
+  document.getElementById('saveCapturedBtn')
+    .style.display = 'none';
+  capturedCoords = null;
+
+  await loadSavedLocations();
+};
+
+/* ============================================================
+   USER – Load Active Location
+============================================================ */
+async function loadActiveLocation() {
+  const { data: locs } = await supabase
+    .from('admin_checkin_location')
+    .select('*')
+    .eq('is_active', true)
+    .limit(1);
+
+  const display = document.getElementById('activeLocationDisplay');
+
+  if (!locs || locs.length === 0) {
+    activeLocation = null;
+    display.innerHTML = `
+      <div class="no-location-card">
+        <span>⚠️</span>
+        No check-in location has been set by admin yet.
+      </div>`;
+    document.getElementById('checkInBtn').disabled = true;
+    return;
+  }
+
+  activeLocation = locs[0];
+  display.innerHTML = `
+    <div class="location-active-card">
+      <div class="location-pulse"></div>
+      <div class="location-info">
+        <div class="loc-title">📍 ${activeLocation.location_title}</div>
+        <div class="loc-sub">Check-in location is active</div>
+      </div>
+    </div>`;
+}
+
+/* ============================================================
+   USER – Check Already Checked In Today
+============================================================ */
+async function checkAlreadyCheckedIn() {
+  const today = new Date().toISOString().split('T')[0];
+
+  const { data: existing } = await supabase
+    .from('check_ins')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .eq('date', today)
+    .limit(1);
+
+  if (existing && existing.length > 0) {
+    const ci  = existing[0];
+    const dt  = new Date(ci.checked_in_at);
+    const str = dt.toLocaleTimeString('en-US',
+      { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+
+    document.getElementById('alreadyCheckedIn').style.display = 'flex';
+    document.getElementById('alreadyCheckedTime').textContent =
+      `At ${str} — ${ci.location}`;
+
+    document.getElementById('checkInBtn').disabled = true;
+    document.getElementById('checkInBtnText').textContent =
+      '✅ Already Checked In';
+  }
+}
+
+/* ============================================================
+   USER – Do Check In
+============================================================ */
+window.doCheckIn = () => {
+  if (!activeLocation) {
+    showStatus('No active location set by admin.', 'error'); return;
+  }
+  if (!navigator.geolocation) {
+    showStatus('Geolocation not supported by this browser.', 'error');
+    return;
+  }
+
+  /* loading state */
+  const btn = document.getElementById('checkInBtn');
+  btn.disabled = true;
+  btn.classList.add('loading');
+  document.getElementById('checkInBtnText').textContent = 'Detecting location...';
+
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      const dist = calculateDistance(
+        pos.coords.latitude,  pos.coords.longitude,
+        Number(activeLocation.latitude),
+        Number(activeLocation.longitude)
+      );
+
+      /* show distance meter */
+      showDistanceMeter(dist);
+
+      if (dist <= 30) {
+        /* ✅ Within range – save check-in */
+        const now   = new Date();
+        const today = now.toISOString().split('T')[0];
+
+        const { error } = await supabase
+          .from('check_ins')
+          .insert({
+            user_id:        currentUser.id,
+            location:       activeLocation.location_title,
+            checked_in_at:  now.toISOString(),
+            date:           today
+          });
+
+        if (error) {
+          showStatus('Server error. Please try again.', 'error');
+        } else {
+          showStatus(
+            `✅ Check-In Successful! You are at "${activeLocation.location_title}". ` +
+            `Distance: ${dist.toFixed(1)}m`,
+            'success'
+          );
+          document.getElementById('alreadyCheckedIn').style.display  = 'flex';
+          document.getElementById('alreadyCheckedTime').textContent  =
+            `At ${now.toLocaleTimeString('en-US',
+              { hour:'2-digit', minute:'2-digit', second:'2-digit' })} — ` +
+            activeLocation.location_title;
+          document.getElementById('checkInBtnText').textContent =
+            '✅ Already Checked In';
+          await loadMyHistory();
+        }
+      } else {
+        /* ❌ Too far */
+        showStatus(
+          `❌ Check-In Failed. You are ${dist.toFixed(0)}m away. ` +
+          `Move within 30m of "${activeLocation.location_title}".`,
+          'error'
+        );
+        btn.disabled = false;
+        document.getElementById('checkInBtnText').textContent =
+          '📍 Check In Now';
+      }
+
+      btn.classList.remove('loading');
+    },
+    (err) => {
+      showStatus(
+        `GPS Error: ${err.message}. Allow location access and retry.`,
+        'error'
+      );
+      btn.disabled = false;
+      btn.classList.remove('loading');
+      document.getElementById('checkInBtnText').textContent =
+        '📍 Check In Now';
+    },
+    { enableHighAccuracy: true, timeout: 15000 }
+  );
+};
+
+/* ============================================================
+   USER – My History
+============================================================ */
+async function loadMyHistory() {
+  const { data: checkins } = await supabase
+    .from('check_ins')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .order('checked_in_at', { ascending: false })
+    .limit(20);
+
+  myCheckIns = checkins || [];
+  const container = document.getElementById('myHistoryList');
+
+  if (!myCheckIns.length) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <p>No check-ins yet</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = myCheckIns.map(ci => {
+    const dt      = new Date(ci.checked_in_at);
+    const dayName = dt.toLocaleDateString('en-US',
+      { weekday:'long' });
+    const dateStr = dt.toLocaleDateString('en-US',
+      { year:'numeric', month:'short', day:'numeric' });
+    const timeStr = dt.toLocaleTimeString('en-US',
+      { hour:'2-digit', minute:'2-digit' });
+
+    return `
+      <div class="my-history-item">
+        <div class="my-history-left">
+          <div class="history-check-icon">✅</div>
+          <div>
+            <div class="my-history-loc">📍 ${ci.location}</div>
+            <div class="my-history-date">${dayName}, ${dateStr}</div>
+          </div>
+        </div>
+        <div class="my-history-time">${timeStr}</div>
+      </div>`;
+  }).join('');
+}
+
+/* ============================================================
+   UI Helpers
+============================================================ */
+function showStatus(msg, type) {
+  const el = document.getElementById('checkinStatus');
+  el.textContent  = msg;
+  el.className    = `checkin-status ${type}`;
+}
+
+function showDistanceMeter(dist) {
+  const wrap   = document.getElementById('distanceDisplay');
+  const text   = document.getElementById('distanceText');
+  const fill   = document.getElementById('distanceBarFill');
+
+  wrap.classList.add('show');
+
+  /* 0m = 100% green, 30m = yellow border, 100m+ = full red */
+  const pct = Math.min((dist / 100) * 100, 100);
+  const color = dist <= 30
+    ? '#22c55e'
+    : dist <= 60
+    ? '#f59e0b'
+    : '#ef4444';
+
+  text.textContent    = `Distance from check-in point: ${dist.toFixed(1)} m`;
+  fill.style.width    = `${pct}%`;
+  fill.style.background = color;
+}
+
+/* ===== Modal ===== */
+window.openModal  = (id) =>
+  document.getElementById(id).classList.add('open');
+window.closeModal = (id) =>
+  document.getElementById(id).classList.remove('open');
+
+/* ===== Toast ===== */
+window.showToast = (msg, type = 'info') => {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3200);
+};
+
+/* ===== Logout ===== */
+window.logout = async () => {
+  await signOut(auth);
+  localStorage.removeItem('wh_user');
+  window.location.href = 'login.html';
+};
+
+/* ============================================================
+   Supabase table update — add new columns if not present
+   Run this SQL in your Supabase SQL editor:
+
+   ALTER TABLE admin_checkin_location
+     ADD COLUMN IF NOT EXISTS location_title TEXT,
+     ADD COLUMN IF NOT EXISTS latitude       NUMERIC,
+     ADD COLUMN IF NOT EXISTS longitude      NUMERIC;
+
+============================================================ */
+</script>
+</body>
+</html>
