@@ -1,0 +1,532 @@
+Copy<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Info Hub – Winter House</title>
+  <link rel="stylesheet" href="css/global.css"/>
+  <style>
+    /* ===== MEMBER GRID ===== */
+    .members-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 1200px) {
+      .members-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 700px) {
+      .members-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* ===== MEMBER CARD ===== */
+    .member-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 16px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .member-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 60px;
+      background: linear-gradient(135deg, rgba(108,142,191,0.15), rgba(74,111,165,0.1));
+    }
+
+    .member-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--accent-blue);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+    }
+
+    .member-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--accent-blue);
+      position: relative;
+      z-index: 1;
+      background: var(--bg-hover);
+    }
+
+    .member-avatar-placeholder {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-blue), #4a6fa5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      border: 3px solid rgba(108,142,191,0.4);
+      position: relative;
+      z-index: 1;
+    }
+
+    .member-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+
+    .member-role {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: rgba(108,142,191,0.1);
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    .member-bio {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .member-card-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    /* ===== ADD CARD ===== */
+    .add-member-card {
+      background: rgba(108,142,191,0.05);
+      border: 2px dashed rgba(108,142,191,0.3);
+      border-radius: 16px;
+      padding: 24px 16px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      min-height: 240px;
+    }
+
+    .add-member-card:hover {
+      background: rgba(108,142,191,0.1);
+      border-color: var(--accent-blue);
+    }
+
+    .add-member-card span { font-size: 36px; }
+
+    .add-member-card p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* ===== SEARCH & FILTER ===== */
+    .search-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      align-items: center;
+    }
+
+    .search-input {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 16px;
+      color: var(--text-primary);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-blue);
+    }
+
+    .search-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    /* Empty state */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--text-muted);
+    }
+
+    .empty-state span {
+      font-size: 48px;
+      display: block;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-wrapper" id="pageWrapper">
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-icon">❄️</span>
+      <div class="logo-text">
+        <h2>Winter House</h2>
+        <span>Tahr Central</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="index.html" class="nav-item">
+        <span class="nav-icon">🏠</span> Dashboard
+      </a>
+      <a href="challenges.html" class="nav-item">
+        <span class="nav-icon">⚔️</span> Challenges
+      </a>
+      <a href="info-hub.html" class="nav-item active">
+        <span class="nav-icon">👥</span> Info Hub
+      </a>
+      <a href="check-in.html" class="nav-item">
+        <span class="nav-icon">✅</span> Check In
+      </a>
+      <a href="hall-of-fame.html" class="nav-item">
+        <span class="nav-icon">🏆</span> Hall of Fame
+      </a>
+      <a href="personal-chat.html" class="nav-item">
+        <span class="nav-icon">💬</span> Personal Chat
+      </a>
+      <a href="community.html" class="nav-item">
+        <span class="nav-icon">📣</span> Community
+      </a>
+    </nav>
+    <div style="padding:16px 20px;border-top:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:32px;height:32px;background:var(--accent-blue);border-radius:50%;
+             display:flex;align-items:center;justify-content:center;font-weight:700;
+             font-size:13px;" id="sidebarAvatar">?</div>
+        <div>
+          <div style="font-size:13px;font-weight:600;" id="sidebarName">Loading...</div>
+          <div style="font-size:11px;color:var(--text-muted);" id="sidebarRoll"></div>
+        </div>
+      </div>
+      <button onclick="logout()"
+        style="margin-top:10px;width:100%;background:transparent;border:1px solid
+        var(--border);color:var(--text-muted);border-radius:6px;padding:8px;
+        cursor:pointer;font-size:12px;">Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1>👥 <span>Info Hub</span></h1>
+        <p>Meet all the members of Winter House</p>
+      </div>
+      <div class="topbar-right" id="adminTopBtn" style="display:none;">
+        <button class="btn btn-primary" onclick="openModal('addMemberModal')">
+          + Add Member
+        </button>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- SEARCH -->
+      <div class="search-bar">
+        <input type="text" class="search-input" id="searchInput"
+          placeholder="🔍  Search members by name or role..."
+          oninput="filterMembers()"/>
+      </div>
+
+      <!-- MEMBERS COUNT -->
+      <div class="section-header" style="margin-bottom:16px;">
+        <div>
+          <div class="section-title">House Members</div>
+          <div class="section-subtitle" id="memberCount">Loading...</div>
+        </div>
+      </div>
+
+      <!-- GRID -->
+      <div class="members-grid" id="membersGrid">
+        <div class="empty-state">
+          <span>👥</span>
+          <p>Loading members...</p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ADD MEMBER MODAL -->
+<div class="modal-overlay" id="addMemberModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('addMemberModal')">✕</button>
+    <h2>👤 Add House Member</h2>
+    <div class="form-group">
+      <label>Full Name</label>
+      <input type="text" id="memName" placeholder="e.g. Arjun Sharma"/>
+    </div>
+    <div class="form-group">
+      <label>Role / Position</label>
+      <input type="text" id="memRole" placeholder="e.g. House Captain"/>
+    </div>
+    <div class="form-group">
+      <label>Bio (1–2 sentences)</label>
+      <textarea id="memBio" placeholder="A short bio about this member..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Profile Image URL</label>
+      <input type="url" id="memImg" placeholder="https://..."/>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button class="btn btn-primary" style="flex:1;" onclick="addMember()">
+        Add Member
+      </button>
+      <button class="btn btn-outline" onclick="closeModal('addMemberModal')">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW MEMBER MODAL -->
+<div class="modal-overlay" id="viewMemberModal">
+  <div class="modal" style="text-align:center;">
+    <button class="modal-close" onclick="closeModal('viewMemberModal')">✕</button>
+    <div id="viewMemberContent"></div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut }
+    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { createClient }
+    from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBzy-i81YhgrGoSfIFHbNT-Xxem-fbo94E",
+    authDomain: "winter-house-d3132.firebaseapp.com",
+    projectId: "winter-house-d3132",
+    storageBucket: "winter-house-d3132.firebasestorage.app",
+    messagingSenderId: "678128530195",
+    appId: "1:678128530195:web:464d6dedf0846070c220e6"
+  };
+
+  const SUPABASE_URL = "https://dwjsprcfncwbcizvukyu.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR3anNwcmNmbmN3YmNpenZ1a3l1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0NTU0MTUsImV4cCI6MjA4OTAzMTQxNX0.StzyQwnuvdq7YRGUOnLey9Sr842HnAGEQecgeO63p7U";
+
+  const firebaseApp = initializeApp(firebaseConfig);
+  const auth = getAuth(firebaseApp);
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let currentUser = null;
+  let allMembers = [];
+
+  onAuthStateChanged(auth, async (fbUser) => {
+    if (!fbUser) { window.location.href = 'login.html'; return; }
+
+    const { data: profile } = await supabase
+      .from('profiles').select('*')
+      .eq('firebase_uid', fbUser.uid).single();
+
+    if (!profile) { window.location.href = 'login.html'; return; }
+
+    currentUser = profile;
+    document.getElementById('pageWrapper').classList.add('loaded');
+    document.getElementById('sidebarName').textContent = profile.name;
+    document.getElementById('sidebarRoll').textContent = profile.roll_number;
+    document.getElementById('sidebarAvatar').textContent =
+      profile.name.charAt(0).toUpperCase();
+
+    if (profile.is_admin) {
+      document.getElementById('adminTopBtn').style.display = 'flex';
+    }
+
+    loadMembers();
+  });
+
+  async function loadMembers() {
+    const { data } = await supabase
+      .from('info_hub_members')
+      .select('*')
+      .order('created_at', { ascending: true });
+
+    allMembers = data || [];
+    document.getElementById('memberCount').textContent =
+      `${allMembers.length} member${allMembers.length !== 1 ? 's' : ''}`;
+    renderMembers(allMembers);
+  }
+
+  function renderMembers(members) {
+    const grid = document.getElementById('membersGrid');
+    grid.innerHTML = '';
+
+    if (currentUser.is_admin) {
+      const addCard = document.createElement('div');
+      addCard.className = 'add-member-card';
+      addCard.onclick = () => openModal('addMemberModal');
+      addCard.innerHTML = `<span>➕</span><p>Add New Member</p>`;
+      grid.appendChild(addCard);
+    }
+
+    if (members.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.innerHTML = `<span>👥</span><p>No members added yet</p>`;
+      grid.appendChild(empty);
+      return;
+    }
+
+    members.forEach(member => {
+      const card = document.createElement('div');
+      card.className = 'member-card';
+
+      const avatarHTML = member.image_url
+        ? `<img src="${member.image_url}" class="member-avatar"
+             onerror="this.style.display='none'" alt="${member.name}"/>`
+        : `<div class="member-avatar-placeholder">
+             ${member.name.charAt(0).toUpperCase()}
+           </div>`;
+
+      const adminActions = currentUser.is_admin
+        ? `<div class="member-card-actions">
+             <button class="btn btn-danger"
+               style="font-size:11px;padding:5px 10px;"
+               onclick="deleteMember('${member.id}')">🗑 Remove</button>
+           </div>`
+        : '';
+
+      card.innerHTML = `
+        ${avatarHTML}
+        <div class="member-name">${member.name}</div>
+        ${member.role
+          ? `<div class="member-role">${member.role}</div>` : ''}
+        <div class="member-bio">${member.bio}</div>
+        ${adminActions}
+      `;
+
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', (e) => {
+        if (e.target.tagName === 'BUTTON') return;
+        viewMember(member);
+      });
+
+      grid.appendChild(card);
+    });
+  }
+
+  window.filterMembers = () => {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = allMembers.filter(m =>
+      m.name.toLowerCase().includes(query) ||
+      (m.role && m.role.toLowerCase().includes(query)) ||
+      (m.bio && m.bio.toLowerCase().includes(query))
+    );
+    renderMembers(filtered);
+  };
+
+  window.viewMember = (member) => {
+    const avatarHTML = member.image_url
+      ? `<img src="${member.image_url}"
+           style="width:100px;height:100px;border-radius:50%;object-fit:cover;
+           border:3px solid var(--accent-blue);margin-bottom:16px;"
+           onerror="this.style.display='none'" alt="${member.name}"/>`
+      : `<div style="width:100px;height:100px;border-radius:50%;
+           background:linear-gradient(135deg,var(--accent-blue),#4a6fa5);
+           display:flex;align-items:center;justify-content:center;
+           font-size:36px;font-weight:700;color:#fff;margin:0 auto 16px;">
+           ${member.name.charAt(0).toUpperCase()}
+         </div>`;
+
+    document.getElementById('viewMemberContent').innerHTML = `
+      ${avatarHTML}
+      <h2 style="margin-bottom:8px;">${member.name}</h2>
+      ${member.role
+        ? `<span style="color:var(--accent-blue);font-size:13px;
+             font-weight:600;">${member.role}</span>` : ''}
+      <p style="color:var(--text-secondary);font-size:14px;
+        line-height:1.7;margin-top:16px;">${member.bio}</p>
+    `;
+    openModal('viewMemberModal');
+  };
+
+  window.addMember = async () => {
+    const name = document.getElementById('memName').value.trim();
+    const role = document.getElementById('memRole').value.trim();
+    const bio = document.getElementById('memBio').value.trim();
+    const image_url = document.getElementById('memImg').value.trim();
+
+    if (!name || !bio) {
+      showToast('Name and bio are required', 'error'); return;
+    }
+
+    const { error } = await supabase.from('info_hub_members').insert({
+      name, role: role || null,
+      bio, image_url: image_url || null,
+      added_by: currentUser.id
+    });
+
+    if (error) { showToast('Error adding member', 'error'); return; }
+
+    showToast('Member added!', 'success');
+    closeModal('addMemberModal');
+    document.getElementById('memName').value = '';
+    document.getElementById('memRole').value = '';
+    document.getElementById('memBio').value = '';
+    document.getElementById('memImg').value = '';
+    loadMembers();
+  };
+
+  window.deleteMember = async (id) => {
+    if (!confirm('Remove this member?')) return;
+    await supabase.from('info_hub_members').delete().eq('id', id);
+    showToast('Member removed', 'info');
+    loadMembers();
+  };
+
+  window.openModal = (id) => document.getElementById(id).classList.add('open');
+  window.closeModal = (id) => document.getElementById(id).classList.remove('open');
+
+  window.showToast = (msg, type = 'info') => {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast ${type} show`;
+    setTimeout(() => t.classList.remove('show'), 3000);
+  };
+
+  window.logout = async () => {
+    await signOut(auth);
+    localStorage.removeItem('wh_user');
+    window.location.href = 'login.html';
+  };
+</script>
+</body>
+</html>
