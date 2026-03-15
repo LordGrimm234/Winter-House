@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Challenges – Winter House</title>
+  <link rel="stylesheet" href="css/global.css"/>
+  <style>
+    /* ===== XP BANNER ===== */
+    .xp-banner {
+      background: linear-gradient(135deg, #1a1500, #2d2200);
+      border: 1px solid #4a3800;
+      border-radius: 14px;
+      padding: 24px 28px;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .xp-icon { font-size: 42px; }
+
+    .xp-info { flex: 1; }
+
+    .xp-info h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 2px;
+      color: var(--text-primary);
+    }
+
+    .xp-info p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .xp-bar-wrap {
+      background: rgba(0,0,0,0.4);
+      border-radius: 20px;
+      height: 14px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .xp-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #f59e0b, #fbbf24, #fde68a);
+      border-radius: 20px;
+      transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+      min-width: 4px;
+      position: relative;
+    }
+
+    .xp-bar-fill::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0; bottom: 0;
+      width: 30px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
+      border-radius: 20px;
+    }
+
+    .xp-right {
+      text-align: center;
+    }
+
+    .xp-number {
+      font-size: 36px;
+      font-weight: 800;
+      color: #f59e0b;
+      line-height: 1;
+    }
+
+    .xp-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+
+    .xp-level {
+      display: inline-block;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #000;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-top: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    /* ===== CHALLENGE GRID ===== */
+    .challenges-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 1100px) {
+      .challenges-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 600px) {
+      .challenges-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ===== CHALLENGE CARD ===== */
+    .challenge-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .challenge-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    }
+
+    .challenge-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(245,158,11,0.4);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+    }
+
+    .challenge-card.completed {
+      border-color: rgba(34,197,94,0.3);
+      background: linear-gradient(135deg, var(--bg-card), rgba(34,197,94,0.05));
+    }
+
+    .challenge-card.completed::before {
+      background: linear-gradient(90deg, #22c55e, #4ade80);
+    }
+
+    .challenge-card.pending {
+      border-color: rgba(245,158,11,0.3);
+      background: linear-gradient(135deg, var(--bg-card), rgba(245,158,11,0.05));
+    }
+
+    .challenge-card.pending::before {
+      background: linear-gradient(90deg, #f59e0b, #fbbf24);
+      animation: pulse-bar 1.5s infinite;
+    }
+
+    @keyframes pulse-bar {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .challenge-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .challenge-xp-badge {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #000;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 20px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .challenge-title {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.4;
+      color: var(--text-primary);
+    }
+
+    .challenge-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      flex: 1;
+    }
+
+    .challenge-footer {
+      margin-top: auto;
+    }
+
+    .btn-done {
+      width: 100%;
+      background: linear-gradient(135deg, #6c8ebf, #4a6fa5);
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-done:hover {
+      opacity: 0.9;
+      transform: scale(1.02);
+    }
+
+    .status-badge {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+
+    .status-pending {
+      background: rgba(245,158,11,0.15);
+      border: 1px solid rgba(245,158,11,0.3);
+      color: #f59e0b;
+    }
+
+    .status-approved {
+      background: rgba(34,197,94,0.15);
+      border: 1px solid rgba(34,197,94,0.3);
+      color: #22c55e;
+    }
+
+    /* ===== ADMIN ADD CARD ===== */
+    .add-challenge-card {
+      background: rgba(108,142,191,0.05);
+      border: 2px dashed rgba(108,142,191,0.3);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      min-height: 200px;
+    }
+
+    .add-challenge-card:hover {
+      background: rgba(108,142,191,0.1);
+      border-color: var(--accent-blue);
+    }
+
+    .add-challenge-card span {
+      font-size: 32px;
+    }
+
+    .add-challenge-card p {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* ===== HISTORY SECTION ===== */
+    .history-section {
+      margin-top: 40px;
+    }
+
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .history-table th {
+      text-align: left;
+      padding: 10px 16px;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .history-table td {
+      padding: 12px 16px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid rgba(42,45,62,0.5);
+    }
+
+    .history-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .history-table tr:hover td {
+      background: var(--bg-hover);
+    }
+
+    /* ===== ADMIN APPROVAL SECTION ===== */
+    .approval-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .approval-info { flex: 1; }
+
+    .approval-info strong {
+      font-size: 14px;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .approval-info span {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .approval-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-approve {
+      background: var(--success);
+      border: none;
+      color: #fff;
+      padding: 7px 14px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn-approve:hover { opacity: 0.85; }
+
+    .btn-reject {
+      background: var(--danger);
+      border: none;
+      color: #fff;
+      padding: 7px 14px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn-reject:hover { opacity: 0.85; }
+
+    /* ===== TABS ===== */
+    .tab-row {
+      display: flex;
+      gap: 4px;
+      background: var(--bg-secondary);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 24px;
+      width: fit-content;
+    }
+
+    .tab-pill {
+      padding: 8px 20px;
+      border-radius: 7px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-pill.active {
+      background: var(--accent-blue);
+      color: #fff;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--text-muted);
+    }
+
+    .empty-state span {
+      font-size: 48px;
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    .empty-state p {
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-wrapper" id="pageWrapper">
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-icon">❄️</span>
+      <div class="logo-text">
+        <h2>Winter House</h2>
+        <span>Tahr Central</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="index.html" class="nav-item">
+        <span class="nav-icon">🏠</span> Dashboard
+      </a>
+      <a href="challenges.html" class="nav-item active">
+        <span class="nav-icon">⚔️</span> Challenges
+      </a>
+      <a href="info-hub.html" class="nav-item">
+        <span class="nav-icon">👥</span> Info Hub
+      </a>
+      <a href="check-in.html" class="nav-item">
+        <span class="nav-icon">✅</span> Check In
+      </a>
+      <a href="hall-of-fame.html" class="nav-item">
+        <span class="nav-icon">🏆</span> Hall of Fame
+      </a>
+      <a href="personal-chat.html" class="nav-item">
+        <span class="nav-icon">💬</span> Personal Chat
+      </a>
+      <a href="community.html" class="nav-item">
+        <span class="nav-icon">📣</span> Community
+      </a>
+    </nav>
+    <div style="padding:16px 20px;border-top:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:32px;height:32px;background:var(--accent-blue);border-radius:50%;
+             display:flex;align-items:center;justify-content:center;font-weight:700;
+             font-size:13px;" id="sidebarAvatar">?</div>
+        <div>
+          <div style="font-size:13px;font-weight:600;" id="sidebarName">Loading...</div>
+          <div style="font-size:11px;color:var(--text-muted);" id="sidebarRoll"></div>
+        </div>
+      </div>
+      <button onclick="logout()"
+        style="margin-top:10px;width:100%;background:transparent;border:1px solid
+        var(--border);color:var(--text-muted);border-radius:6px;padding:8px;
+        cursor:pointer;font-size:12px;">Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1>⚔️ <span>Challenges</span></h1>
+        <p>Complete challenges to earn XP and climb the leaderboard</p>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- XP BANNER -->
+      <div class="xp-banner">
+        <div class="xp-icon">⚡</div>
+        <div class="xp-info">
+          <h3 id="xpUserName">Your Progress</h3>
+          <p>Keep completing challenges to level up!</p>
+          <div class="xp-bar-wrap">
+            <div class="xp-bar-fill" id="xpBarFill" style="width:0%"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:4px;">
+            <span style="font-size:11px;color:var(--text-muted);">Level <span id="currentLevel">1</span></span>
+            <span style="font-size:11px;color:var(--text-muted);"><span id="xpProgress">0</span> / <span id="xpNext">100</span> XP</span>
+          </div>
+        </div>
+        <div class="xp-right">
+          <div class="xp-number" id="totalXP">0</div>
+          <div class="xp-label">Total XP</div>
+          <div class="xp-level" id="levelBadge">Level 1</div>
+        </div>
+      </div>
+
+      <!-- TABS -->
+      <div class="tab-row">
+        <button class="tab-pill active" onclick="switchTab('challenges')">🗡️ Challenges</button>
+        <button class="tab-pill" onclick="switchTab('history')">📋 My History</button>
+        <button class="tab-pill admin-only" id="approvalTab"
+          onclick="switchTab('approvals')" style="display:none;">
+          ⚙️ Approvals <span id="pendingBadge"
+            style="background:var(--danger);color:#fff;font-size:10px;
+            padding:2px 6px;border-radius:10px;margin-left:4px;">0</span>
+        </button>
+      </div>
+
+      <!-- CHALLENGES TAB -->
+      <div class="tab-content active" id="challengesTab">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Active Challenges</div>
+            <div class="section-subtitle">Click "Done" when you've completed a challenge</div>
+          </div>
+        </div>
+
+        <div class="challenges-grid" id="challengesGrid">
+          <!-- Cards injected here -->
+          <div class="empty-state" style="grid-column:1/-1;">
+            <span>⚔️</span>
+            <p>Loading challenges...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTORY TAB -->
+      <div class="tab-content" id="historyTab">
+        <div class="section-header">
+          <div class="section-title">My Completion History</div>
+          <div class="section-subtitle">All challenges you have submitted</div>
+        </div>
+        <div class="card">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Challenge</th>
+                <th>XP Value</th>
+                <th>Submitted</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              <tr>
+                <td colspan="4" style="text-align:center;color:var(--text-muted);">
+                  No history yet
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- APPROVALS TAB (admin only) -->
+      <div class="tab-content" id="approvalsTab">
+        <div class="section-header">
+          <div class="section-title">Pending Approvals</div>
+          <div class="section-subtitle">Review and approve user challenge completions</div>
+        </div>
+        <div id="approvalsContainer">
+          <div class="empty-state">
+            <span>✅</span>
+            <p>No pending approvals</p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-content -->
+  </main>
+</div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ADD CHALLENGE MODAL (Admin) -->
+<div class="modal-overlay" id="addChallengeModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('addChallengeModal')">✕</button>
+    <h2>➕ Add New Challenge</h2>
+    <div class="form-group">
+      <label>Challenge Title</label>
+      <input type="text" id="chTitle" placeholder="e.g. Read for 30 minutes"/>
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea id="chDesc" placeholder="Describe what needs to be done..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>XP Value</label>
+      <input type="number" id="chXP" placeholder="e.g. 50" min="1" max="1000"/>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button class="btn btn-primary" style="flex:1;" onclick="addChallenge()">
+        Publish Challenge
+      </button>
+      <button class="btn btn-outline" onclick="closeModal('addChallengeModal')">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DONE MODAL -->
+<div class="modal-overlay" id="confirmDoneModal">
+  <div class="modal" style="max-width:380px;">
+    <h2>Confirm Completion</h2>
+    <p style="color:var(--text-secondary);font-size:14px;margin-bottom:20px;">
+      Are you sure you've completed this challenge?
+      An admin will review and award your XP.
+    </p>
+    <p style="color:var(--text-muted);font-size:13px;margin-bottom:20px;">
+      Challenge: <strong id="confirmChallengeName" style="color:var(--text-primary);"></strong>
+    </p>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-success" style="flex:1;" onclick="confirmDone()">
+        ✓ Yes, I'm Done!
+      </button>
+      <button class="btn btn-outline" onclick="closeModal('confirmDoneModal')">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut }
+    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { createClient }
+    from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+  // ⚠️ REPLACE WITH YOUR KEYS
+  const firebaseConfig = {
+    apiKey: "AIzaSyBzy-i81YhgrGoSfIFHbNT-Xxem-fbo94E",
+    authDomain: "winter-house-d3132.firebaseapp.com",
+    projectId: "winter-house-d3132",
+    storageBucket: "winter-house-d3132.firebasestorage.app",
+    messagingSenderId: "678128530195",
+    appId: "1:678128530195:web:464d6dedf0846070c220e6"
+  };
+
+  const SUPABASE_URL = "https://dwjsprcfncwbcizvukyu.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR3anNwcmNmbmN3YmNpenZ1a3l1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0NTU0MTUsImV4cCI6MjA4OTAzMTQxNX0.StzyQwnuvdq7YRGUOnLey9Sr842HnAGEQecgeO63p7U";
+
+  const firebaseApp = initializeApp(firebaseConfig);
+  const auth = getAuth(firebaseApp);
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let currentUser = null;
+  let pendingChallengeId = null;
+  let pendingChallengeName = null;
+
+  // ===== AUTH GUARD =====
+  onAuthStateChanged(auth, async (fbUser) => {
+    if (!fbUser) { window.location.href = 'login.html'; return; }
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('firebase_uid', fbUser.uid)
+      .single();
+
+    if (!profile) { window.location.href = 'login.html'; return; }
+
+    currentUser = profile;
+    document.getElementById('pageWrapper').classList.add('loaded');
+    document.getElementById('sidebarName').textContent = profile.name;
+    document.getElementById('sidebarRoll').textContent = profile.roll_number;
+    document.getElementById('sidebarAvatar').textContent =
+      profile.name.charAt(0).toUpperCase();
+
+    updateXPBar(profile.xp || 0, profile.name);
+
+    if (profile.is_admin) {
+      document.getElementById('approvalTab').style.display = 'flex';
+    }
+
+    loadChallenges();
+    loadHistory();
+    if (profile.is_admin) loadApprovals();
+  });
+
+  // ===== XP BAR =====
+  function updateXPBar(xp, name) {
+    const level = Math.floor(xp / 100) + 1;
+    const xpInLevel = xp % 100;
+    const pct = xpInLevel;
+
+    document.getElementById('totalXP').textContent = xp;
+    document.getElementById('xpUserName').textContent = `${name}'s Progress`;
+    document.getElementById('currentLevel').textContent = level;
+    document.getElementById('xpProgress').textContent = xpInLevel;
+    document.getElementById('xpNext').textContent = 100;
+    document.getElementById('levelBadge').textContent = `Level ${level}`;
+    document.getElementById('xpBarFill').style.width = `${pct}%`;
+  }
+
+  // ===== LOAD CHALLENGES =====
+  async function loadChallenges() {
+    const { data: challenges } = await supabase
+      .from('challenges')
+      .select('*')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false });
+
+    const { data: myCompletions } = await supabase
+      .from('challenge_completions')
+      .select('*')
+      .eq('user_id', currentUser.id);
+
+    const grid = document.getElementById('challengesGrid');
+    grid.innerHTML = '';
+
+    if (currentUser.is_admin) {
+      const addCard = document.createElement('div');
+      addCard.className = 'add-challenge-card';
+      addCard.onclick = () => openModal('addChallengeModal');
+      addCard.innerHTML = `
+        <span>➕</span>
+        <p>Add New Challenge</p>
+      `;
+      grid.appendChild(addCard);
+    }
+
+    if (!challenges || challenges.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.style.gridColumn = '1 / -1';
+      empty.innerHTML = `<span>⚔️</span><p>No challenges yet. Check back soon!</p>`;
+      grid.appendChild(empty);
+      return;
+    }
+
+    challenges.forEach(ch => {
+      const completion = myCompletions
+        ? myCompletions.find(c => c.challenge_id === ch.id)
+        : null;
+
+      const card = document.createElement('div');
+      let cardClass = 'challenge-card';
+      if (completion && completion.status === 'approved') cardClass += ' completed';
+      if (completion && completion.status === 'pending') cardClass += ' pending';
+      card.className = cardClass;
+
+      let footerHTML = '';
+      if (!completion) {
+        footerHTML = `
+          <button class="btn-done"
+            onclick="openConfirmDone('${ch.id}','${ch.title.replace(/'/g, "\\'")}')">
+            ✓ Mark as Done
+          </button>`;
+      } else if (completion.status === 'pending') {
+        footerHTML = `
+          <div class="status-badge status-pending">
+            ⏳ Awaiting Admin Approval
+          </div>`;
+      } else if (completion.status === 'approved') {
+        footerHTML = `
+          <div class="status-badge status-approved">
+            ✅ Completed & Approved
+          </div>`;
+      }
+
+      card.innerHTML = `
+        <div class="challenge-top">
+          <div class="challenge-title">${ch.title}</div>
+          <div class="challenge-xp-badge">+${ch.xp_value} XP</div>
+        </div>
+        <div class="challenge-desc">${ch.description}</div>
+        <div class="challenge-footer">${footerHTML}</div>
+        ${currentUser.is_admin ? `
+          <button onclick="deleteChallenge('${ch.id}')"
+            style="background:transparent;border:none;color:var(--danger);
+            font-size:11px;cursor:pointer;text-align:left;padding:0;">
+            🗑 Remove Challenge
+          </button>` : ''}
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  // ===== MARK AS DONE =====
+  window.openConfirmDone = (id, name) => {
+    pendingChallengeId = id;
+    pendingChallengeName = name;
+    document.getElementById('confirmChallengeName').textContent = name;
+    openModal('confirmDoneModal');
+  };
+
+  window.confirmDone = async () => {
+    if (!pendingChallengeId) return;
+
+    const { error } = await supabase.from('challenge_completions').insert({
+      challenge_id: pendingChallengeId,
+      user_id: currentUser.id,
+      status: 'pending'
+    });
+
+    if (error) {
+      if (error.code === '23505') {
+        showToast('Already submitted!', 'error');
+      } else {
+        showToast('Error submitting', 'error');
+      }
+      closeModal('confirmDoneModal');
+      return;
+    }
+
+    showToast('Submitted! Waiting for admin approval.', 'success');
+    closeModal('confirmDoneModal');
+    pendingChallengeId = null;
+    loadChallenges();
+    loadHistory();
+  };
+
+  // ===== LOAD HISTORY =====
+  async function loadHistory() {
+    const { data } = await supabase
+      .from('challenge_completions')
+      .select(`
+        *,
+        challenges ( title, xp_value )
+      `)
+      .eq('user_id', currentUser.id)
+      .order('completed_at', { ascending: false });
+
+    const tbody = document.getElementById('historyTableBody');
+
+    if (!data || data.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="4"
+        style="text-align:center;color:var(--text-muted);padding:24px;">
+        No history yet</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = data.map(row => {
+      const statusColor = row.status === 'approved'
+        ? 'var(--success)' : row.status === 'pending'
+        ? '#f59e0b' : 'var(--danger)';
+
+      const statusIcon = row.status === 'approved' ? '✅'
+        : row.status === 'pending' ? '⏳' : '❌';
+
+      const date = new Date(row.completed_at).toLocaleDateString('en-US', {
+        day: 'numeric', month: 'short', year: 'numeric'
+      });
+
+      return `
+        <tr>
+          <td><strong>${row.challenges?.title || 'Unknown'}</strong></td>
+          <td><span style="color:#f59e0b;font-weight:700;">
+            +${row.challenges?.xp_value || 0} XP</span></td>
+          <td style="color:var(--text-muted);">${date}</td>
+          <td><span style="color:${statusColor};font-weight:600;">
+            ${statusIcon} ${row.status.charAt(0).toUpperCase() + row.status.slice(1)}
+          </span></td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  // ===== LOAD APPROVALS (admin) =====
+  async function loadApprovals() {
+    const { data } = await supabase
+      .from('challenge_completions')
+      .select(`
+        *,
+        challenges ( title, xp_value ),
+        profiles!challenge_completions_user_id_fkey ( name, roll_number )
+      `)
+      .eq('status', 'pending')
+      .order('completed_at', { ascending: true });
+
+    const container = document.getElementById('approvalsContainer');
+    const badge = document.getElementById('pendingBadge');
+
+    badge.textContent = data ? data.length : 0;
+
+    if (!data || data.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <span>✅</span>
+          <p>No pending approvals</p>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = data.map(row => {
+      const date = new Date(row.completed_at).toLocaleDateString('en-US', {
+        day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+      });
+      return `
+        <div class="approval-card">
+          <div class="approval-info">
+            <strong>${row.profiles?.name || 'Unknown User'}</strong>
+            <span>${row.profiles?.roll_number || ''} · ${row.challenges?.title || ''} ·
+              <span style="color:#f59e0b;">+${row.challenges?.xp_value || 0} XP</span>
+              · ${date}
+            </span>
+          </div>
+          <div class="approval-actions">
+            <button class="btn-approve"
+              onclick="approveCompletion('${row.id}','${row.user_id}',
+              ${row.challenges?.xp_value || 0})">
+              ✓ Approve
+            </button>
+            <button class="btn-reject"
+              onclick="rejectCompletion('${row.id}')">
+              ✕ Reject
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ===== APPROVE =====
+  window.approveCompletion = async (completionId, userId, xpValue) => {
+    const { error: updateError } = await supabase
+      .from('challenge_completions')
+      .update({
+        status: 'approved',
+        authorized_at: new Date().toISOString(),
+        authorized_by: currentUser.id
+      })
+      .eq('id', completionId);
+
+    if (updateError) { showToast('Error approving', 'error'); return; }
+
+    const { data: userProfile } = await supabase
+      .from('profiles')
+      .select('xp')
+      .eq('id', userId)
+      .single();
+
+    const newXP = (userProfile?.xp || 0) + xpValue;
+
+    await supabase
+      .from('profiles')
+      .update({ xp: newXP })
+      .eq('id', userId);
+
+    showToast(`Approved! +${xpValue} XP awarded.`, 'success');
+    loadApprovals();
+  };
+
+  // ===== REJECT =====
+  window.rejectCompletion = async (completionId) => {
+    await supabase
+      .from('challenge_completions')
+      .update({ status: 'rejected' })
+      .eq('id', completionId);
+
+    showToast('Completion rejected.', 'info');
+    loadApprovals();
+  };
+
+  // ===== ADD CHALLENGE (admin) =====
+  window.addChallenge = async () => {
+    const title = document.getElementById('chTitle').value.trim();
+    const description = document.getElementById('chDesc').value.trim();
+    const xp_value = parseInt(document.getElementById('chXP').value);
+
+    if (!title || !description || !xp_value) {
+      showToast('Please fill in all fields', 'error'); return;
+    }
+
+    const { error } = await supabase.from('challenges').insert({
+      title, description, xp_value,
+      created_by: currentUser.id,
+      is_active: true
+    });
+
+    if (error) { showToast('Error adding challenge', 'error'); return; }
+
+    showToast('Challenge added!', 'success');
+    closeModal('addChallengeModal');
+    document.getElementById('chTitle').value = '';
+    document.getElementById('chDesc').value = '';
+    document.getElementById('chXP').value = '';
+    loadChallenges();
+  };
+
+  // ===== DELETE CHALLENGE (admin) =====
+  window.deleteChallenge = async (id) => {
+    if (!confirm('Remove this challenge?')) return;
+    await supabase.from('challenges').update({ is_active: false }).eq('id', id);
+    showToast('Challenge removed', 'info');
+    loadChallenges();
+  };
+
+  // ===== TAB SWITCHER =====
+  window.switchTab = (tab) => {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-pill').forEach(p => p.classList.remove('active'));
+
+    const tabMap = {
+      challenges: 'challengesTab',
+      history: 'historyTab',
+      approvals: 'approvalsTab'
+    };
+
+    document.getElementById(tabMap[tab]).classList.add('active');
+    event.target.classList.add('active');
+
+    if (tab === 'approvals') loadApprovals();
+    if (tab === 'history') loadHistory();
+  };
+
+  // ===== MODAL & TOAST HELPERS =====
+  window.openModal = (id) => document.getElementById(id).classList.add('open');
+  window.closeModal = (id) => document.getElementById(id).classList.remove('open');
+
+  window.showToast = (msg, type = 'info') => {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast ${type} show`;
+    setTimeout(() => t.classList.remove('show'), 3000);
+  };
+
+  window.logout = async () => {
+    await signOut(auth);
+    localStorage.removeItem('wh_user');
+    window.location.href = 'login.html';
+  };
+</script>
+</body>
+</html>
