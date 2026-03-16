@@ -15,7 +15,6 @@
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
     }
-
     .login-container {
       background: #1a1d27;
       border: 1px solid #2a2d3e;
@@ -25,39 +24,28 @@
       max-width: 420px;
       box-shadow: 0 20px 60px rgba(0,0,0,0.5);
     }
-
     .login-logo {
       text-align: center;
       margin-bottom: 32px;
     }
-
     .login-logo h1 {
       color: #fff;
       font-size: 28px;
       font-weight: 700;
       margin: 0;
     }
-
-    .login-logo span {
-      color: #6c8ebf;
-    }
-
+    .login-logo span { color: #6c8ebf; }
     .login-logo p {
       color: #888;
       margin: 4px 0 0;
       font-size: 14px;
     }
-
     .snowflake-icon {
       font-size: 48px;
       display: block;
       margin-bottom: 12px;
     }
-
-    .form-group {
-      margin-bottom: 20px;
-    }
-
+    .form-group { margin-bottom: 20px; }
     .form-group label {
       display: block;
       color: #aaa;
@@ -65,7 +53,6 @@
       margin-bottom: 8px;
       font-weight: 500;
     }
-
     .form-group input {
       width: 100%;
       background: #0f1117;
@@ -78,11 +65,7 @@
       transition: border-color 0.2s;
       box-sizing: border-box;
     }
-
-    .form-group input:focus {
-      border-color: #6c8ebf;
-    }
-
+    .form-group input:focus { border-color: #6c8ebf; }
     .btn-login {
       width: 100%;
       background: linear-gradient(135deg, #6c8ebf, #4a6fa5);
@@ -96,29 +79,9 @@
       transition: opacity 0.2s, transform 0.1s;
       margin-top: 8px;
     }
-
-    .btn-login:hover {
-      opacity: 0.9;
-      transform: translateY(-1px);
-    }
-
-    .btn-login:active {
-      transform: translateY(0);
-    }
-
-    .register-link {
-      text-align: center;
-      margin-top: 20px;
-      color: #888;
-      font-size: 13px;
-    }
-
-    .register-link a {
-      color: #6c8ebf;
-      text-decoration: none;
-      font-weight: 500;
-    }
-
+    .btn-login:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-login:active { transform: translateY(0); }
+    .btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
     .error-msg {
       background: rgba(239, 68, 68, 0.15);
       border: 1px solid rgba(239, 68, 68, 0.3);
@@ -129,7 +92,6 @@
       margin-bottom: 16px;
       display: none;
     }
-
     .tab-switcher {
       display: flex;
       background: #0f1117;
@@ -137,7 +99,6 @@
       padding: 4px;
       margin-bottom: 28px;
     }
-
     .tab-btn {
       flex: 1;
       padding: 8px;
@@ -150,11 +111,19 @@
       font-weight: 500;
       transition: all 0.2s;
     }
-
-    .tab-btn.active {
-      background: #6c8ebf;
-      color: #fff;
+    .tab-btn.active { background: #6c8ebf; color: #fff; }
+    .loading-spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-right: 6px;
+      vertical-align: middle;
     }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -183,7 +152,7 @@
       <label>Password</label>
       <input type="password" id="loginPassword" placeholder="••••••••" required/>
     </div>
-    <button type="submit" class="btn-login">Sign In →</button>
+    <button type="submit" class="btn-login" id="loginBtn">Sign In →</button>
   </form>
 
   <!-- REGISTER FORM -->
@@ -204,18 +173,22 @@
       <label>Password</label>
       <input type="password" id="regPassword" placeholder="Min 6 characters" required/>
     </div>
-    <button type="submit" class="btn-login">Create Account →</button>
+    <button type="submit" class="btn-login" id="registerBtn">Create Account →</button>
   </form>
 </div>
 
-<!-- Firebase -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword }
-    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import {
+    getAuth,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    setPersistence,
+    browserSessionPersistence   /* ← KEY FIX: session not local */
+  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
   import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-  // ⚠️ REPLACE WITH YOUR KEYS
+  /* ── REPLACE WITH YOUR KEYS ── */
   const firebaseConfig = {
     apiKey: "AIzaSyBzy-i81YhgrGoSfIFHbNT-Xxem-fbo94E",
     authDomain: "winter-house-d3132.firebaseapp.com",
@@ -224,97 +197,147 @@
     messagingSenderId: "678128530195",
     appId: "1:678128530195:web:464d6dedf0846070c220e6"
   };
-
-  const SUPABASE_URL = "https://dwjsprcfncwbcizvukyu.supabase.co";
+  const SUPABASE_URL     = "https://dwjsprcfncwbcizvukyu.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR3anNwcmNmbmN3YmNpenZ1a3l1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0NTU0MTUsImV4cCI6MjA4OTAzMTQxNX0.StzyQwnuvdq7YRGUOnLey9Sr842HnAGEQecgeO63p7U";
+  /* ─────────────────────────── */
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const firebaseApp = initializeApp(firebaseConfig);
+  const auth        = getAuth(firebaseApp);
+  const supabase    = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  /* Use SESSION persistence so each browser tab is independent */
+  await setPersistence(auth, browserSessionPersistence);
+
+  function showError(msg, success = false) {
+    const el = document.getElementById('errorMsg');
+    el.style.display = 'block';
+    if (success) {
+      el.style.background    = 'rgba(34,197,94,0.15)';
+      el.style.borderColor   = 'rgba(34,197,94,0.3)';
+      el.style.color         = '#22c55e';
+    } else {
+      el.style.background    = 'rgba(239,68,68,0.15)';
+      el.style.borderColor   = 'rgba(239,68,68,0.3)';
+      el.style.color         = '#ef4444';
+    }
+    el.textContent = msg;
+  }
+
+  function setLoading(btnId, loading) {
+    const btn = document.getElementById(btnId);
+    btn.disabled = loading;
+    btn.innerHTML = loading
+      ? '<span class="loading-spinner"></span>Please wait...'
+      : (btnId === 'loginBtn' ? 'Sign In →' : 'Create Account →');
+  }
+
+  /* ── LOGIN ── */
   window.handleLogin = async (e) => {
     e.preventDefault();
-    const email = document.getElementById('loginEmail').value;
+    const email    = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
-    const errorDiv = document.getElementById('errorMsg');
-    errorDiv.style.display = 'none';
+    document.getElementById('errorMsg').style.display = 'none';
+    setLoading('loginBtn', true);
 
     try {
       const userCred = await signInWithEmailAndPassword(auth, email, password);
       const uid = userCred.user.uid;
-      const { data: profile } = await supabase
+
+      const { data: profile, error: dbErr } = await supabase
         .from('profiles')
         .select('*')
         .eq('firebase_uid', uid)
         .single();
 
-      if (profile) {
-        localStorage.setItem('wh_user', JSON.stringify(profile));
-        window.location.href = 'index.html';
-      } else {
-        errorDiv.textContent = 'Profile not found. Please register first.';
-        errorDiv.style.display = 'block';
+      if (dbErr || !profile) {
+        showError('Profile not found. Please register first.');
+        setLoading('loginBtn', false);
+        return;
       }
+
+      /*
+       * Store in sessionStorage (tab-isolated).
+       * Each tab gets its own sessionStorage so two tabs
+       * can be logged in as different users simultaneously.
+       */
+      sessionStorage.setItem('wh_user', JSON.stringify(profile));
+      window.location.href = 'index.html';
+
     } catch (err) {
-      errorDiv.textContent = err.message;
-      errorDiv.style.display = 'block';
+      const msgs = {
+        'auth/user-not-found':  'No account found with this email.',
+        'auth/wrong-password':  'Incorrect password.',
+        'auth/invalid-email':   'Invalid email address.',
+        'auth/too-many-requests': 'Too many attempts. Try again later.'
+      };
+      showError(msgs[err.code] || err.message);
+      setLoading('loginBtn', false);
     }
   };
 
+  /* ── REGISTER ── */
   window.handleRegister = async (e) => {
     e.preventDefault();
-    const name = document.getElementById('regName').value;
-    const roll = document.getElementById('regRoll').value;
-    const email = document.getElementById('regEmail').value;
+    const name     = document.getElementById('regName').value.trim();
+    const roll     = document.getElementById('regRoll').value.trim();
+    const email    = document.getElementById('regEmail').value.trim();
     const password = document.getElementById('regPassword').value;
-    const errorDiv = document.getElementById('errorMsg');
-    errorDiv.style.display = 'none';
+    document.getElementById('errorMsg').style.display = 'none';
+
+    if (password.length < 6) {
+      showError('Password must be at least 6 characters.'); return;
+    }
+
+    setLoading('registerBtn', true);
 
     try {
+      /* Check if roll number is already taken */
+      const { data: existing } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('roll_number', roll)
+        .single();
+
+      if (existing) {
+        showError('Roll number already registered.'); setLoading('registerBtn', false); return;
+      }
+
       const userCred = await createUserWithEmailAndPassword(auth, email, password);
       const uid = userCred.user.uid;
 
-      const { error } = await supabase.from('profiles').insert({
-        id: crypto.randomUUID(),
+      const { error: insertErr } = await supabase.from('profiles').insert({
+        id:           crypto.randomUUID(),
         firebase_uid: uid,
-        name: name,
-        roll_number: roll,
-        email: email,
-        is_admin: false,
-        xp: 0
+        name,
+        roll_number:  roll,
+        email,
+        is_admin:     false,
+        xp:           0
       });
 
-      if (error) throw error;
+      if (insertErr) throw insertErr;
 
-      errorDiv.style.background = 'rgba(34,197,94,0.15)';
-      errorDiv.style.borderColor = 'rgba(34,197,94,0.3)';
-      errorDiv.style.color = '#22c55e';
-      errorDiv.textContent = '✓ Account created! Please sign in.';
-      errorDiv.style.display = 'block';
+      showError('✓ Account created! You can now sign in.', true);
       switchTab('login');
+
     } catch (err) {
-      errorDiv.textContent = err.message;
-      errorDiv.style.display = 'block';
+      const msgs = {
+        'auth/email-already-in-use': 'An account with this email already exists.',
+        'auth/weak-password':        'Password is too weak.'
+      };
+      showError(msgs[err.code] || err.message);
+    } finally {
+      setLoading('registerBtn', false);
     }
   };
 
+  /* ── TAB SWITCH ── */
   window.switchTab = (tab) => {
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
-    const loginTab = document.getElementById('loginTab');
-    const registerTab = document.getElementById('registerTab');
-
-    if (tab === 'login') {
-      loginForm.style.display = 'block';
-      registerForm.style.display = 'none';
-      loginTab.classList.add('active');
-      registerTab.classList.remove('active');
-    } else {
-      loginForm.style.display = 'none';
-      registerForm.style.display = 'block';
-      loginTab.classList.remove('active');
-      registerTab.classList.add('active');
-    }
+    document.getElementById('loginForm').style.display    = tab === 'login'    ? 'block' : 'none';
+    document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+    document.getElementById('loginTab').classList.toggle('active',    tab === 'login');
+    document.getElementById('registerTab').classList.toggle('active', tab === 'register');
+    document.getElementById('errorMsg').style.display = 'none';
   };
 </script>
 </body>
