@@ -1,4 +1,4 @@
-Copy<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -107,6 +107,8 @@ Copy<!DOCTYPE html>
       display: flex;
       gap: 6px;
       margin-top: 4px;
+      position: relative;
+      z-index: 2;
     }
 
     /* ===== ADD CARD ===== */
@@ -166,6 +168,32 @@ Copy<!DOCTYPE html>
       color: var(--text-muted);
     }
 
+    /* DRAG AND DROP STYLING */
+    .drop-zone {
+      width: 100%;
+      height: 100px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all 0.3s;
+      background: var(--bg-hover);
+      font-size: 13px;
+    }
+    .drop-zone.dragover {
+      border-color: var(--accent-blue);
+      background: rgba(108,142,191,0.1);
+    }
+    .drop-zone img {
+      max-height: 80px;
+      border-radius: 4px;
+    }
+
     /* Empty state */
     .empty-state {
       grid-column: 1 / -1;
@@ -186,7 +214,6 @@ Copy<!DOCTYPE html>
 <div class="page-wrapper" id="pageWrapper">
 <div class="app-layout">
 
-  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-logo">
       <span class="logo-icon">❄️</span>
@@ -235,7 +262,6 @@ Copy<!DOCTYPE html>
     </div>
   </aside>
 
-  <!-- MAIN -->
   <main class="main-content">
 
     <div class="topbar">
@@ -252,14 +278,12 @@ Copy<!DOCTYPE html>
 
     <div class="page-content">
 
-      <!-- SEARCH -->
       <div class="search-bar">
         <input type="text" class="search-input" id="searchInput"
           placeholder="🔍  Search members by name or role..."
           oninput="filterMembers()"/>
       </div>
 
-      <!-- MEMBERS COUNT -->
       <div class="section-header" style="margin-bottom:16px;">
         <div>
           <div class="section-title">House Members</div>
@@ -267,7 +291,6 @@ Copy<!DOCTYPE html>
         </div>
       </div>
 
-      <!-- GRID -->
       <div class="members-grid" id="membersGrid">
         <div class="empty-state">
           <span>👥</span>
@@ -280,10 +303,8 @@ Copy<!DOCTYPE html>
 </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<!-- ADD MEMBER MODAL -->
 <div class="modal-overlay" id="addMemberModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('addMemberModal')">✕</button>
@@ -301,8 +322,11 @@ Copy<!DOCTYPE html>
       <textarea id="memBio" placeholder="A short bio about this member..."></textarea>
     </div>
     <div class="form-group">
-      <label>Profile Image URL</label>
-      <input type="url" id="memImg" placeholder="https://..."/>
+      <label>Profile Image (Drag & Drop or Click)</label>
+      <div id="dropZone" class="drop-zone">
+        <p id="dropZoneText">Drag image here or click to upload</p>
+        <input type="file" id="memImgFile" accept="image/*" style="display:none;"/>
+      </div>
     </div>
     <div style="display:flex;gap:10px;margin-top:4px;">
       <button class="btn btn-primary" style="flex:1;" onclick="addMember()">
@@ -315,7 +339,6 @@ Copy<!DOCTYPE html>
   </div>
 </div>
 
-<!-- VIEW MEMBER MODAL -->
 <div class="modal-overlay" id="viewMemberModal">
   <div class="modal" style="text-align:center;">
     <button class="modal-close" onclick="closeModal('viewMemberModal')">✕</button>
@@ -349,6 +372,38 @@ Copy<!DOCTYPE html>
 
   let currentUser = null;
   let allMembers = [];
+  let uploadedImageBase64 = null;
+
+  // --- DRAG AND DROP LOGIC ---
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('memImgFile');
+
+  dropZone.onclick = () => fileInput.click();
+
+  dropZone.ondragover = (e) => {
+    e.preventDefault();
+    dropZone.classList.add('dragover');
+  };
+
+  dropZone.ondragleave = () => dropZone.classList.remove('dragover');
+
+  dropZone.ondrop = (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    handleFile(e.dataTransfer.files[0]);
+  };
+
+  fileInput.onchange = (e) => handleFile(e.target.files[0]);
+
+  function handleFile(file) {
+    if (!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      uploadedImageBase64 = e.target.result;
+      document.getElementById('dropZoneText').innerHTML = `<img src="${uploadedImageBase64}" />`;
+    };
+    reader.readAsDataURL(file);
+  }
 
   onAuthStateChanged(auth, async (fbUser) => {
     if (!fbUser) { window.location.href = 'login.html'; return; }
@@ -419,7 +474,7 @@ Copy<!DOCTYPE html>
       const adminActions = currentUser.is_admin
         ? `<div class="member-card-actions">
              <button class="btn btn-danger"
-               style="font-size:11px;padding:5px 10px;"
+               style="font-size:11px;padding:5px 10px; cursor:pointer;"
                onclick="deleteMember('${member.id}')">🗑 Remove</button>
            </div>`
         : '';
@@ -482,7 +537,6 @@ Copy<!DOCTYPE html>
     const name = document.getElementById('memName').value.trim();
     const role = document.getElementById('memRole').value.trim();
     const bio = document.getElementById('memBio').value.trim();
-    const image_url = document.getElementById('memImg').value.trim();
 
     if (!name || !bio) {
       showToast('Name and bio are required', 'error'); return;
@@ -490,7 +544,7 @@ Copy<!DOCTYPE html>
 
     const { error } = await supabase.from('info_hub_members').insert({
       name, role: role || null,
-      bio, image_url: image_url || null,
+      bio, image_url: uploadedImageBase64 || null,
       added_by: currentUser.id
     });
 
@@ -501,15 +555,20 @@ Copy<!DOCTYPE html>
     document.getElementById('memName').value = '';
     document.getElementById('memRole').value = '';
     document.getElementById('memBio').value = '';
-    document.getElementById('memImg').value = '';
+    document.getElementById('dropZoneText').textContent = 'Drag image here or click to upload';
+    uploadedImageBase64 = null;
     loadMembers();
   };
 
   window.deleteMember = async (id) => {
     if (!confirm('Remove this member?')) return;
-    await supabase.from('info_hub_members').delete().eq('id', id);
-    showToast('Member removed', 'info');
-    loadMembers();
+    const { error } = await supabase.from('info_hub_members').delete().eq('id', id);
+    if (error) {
+        showToast('Error removing member', 'error');
+    } else {
+        showToast('Member removed', 'info');
+        loadMembers();
+    }
   };
 
   window.openModal = (id) => document.getElementById(id).classList.add('open');
@@ -530,3 +589,4 @@ Copy<!DOCTYPE html>
 </script>
 </body>
 </html>
+
