@@ -1470,7 +1470,7 @@ window.doCheckIn = () => {
           .from('check_ins')
           .insert({
             user_id:        currentUser.id,
-            location:       activeLocation.location_title,
+            location_title:       activeLocation.location_title,
             checked_in_at:  now.toISOString(),
             date:           today
           });
