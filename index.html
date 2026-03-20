@@ -428,66 +428,82 @@
   <main class="main-content">
 
     <div class="topbar">
-      <div class="topbar-left">
-        <h1>Welcome to <span>Tahr Central</span></h1>
+    <div class="topbar-left">
+        <h1>Welcome to <span>Winter House</span></h1>
         <p id="dateDisplay">Loading...</p>
-      </div>
-      <div class="topbar-right">
+    </div>
+    <div class="topbar-right">
         <div class="quote-badge">❄️ "Winter is Coming..."</div>
-      </div>
+    </div>
+</div>
+
+<div id="adminBanner" style="background: #1a2040; border-bottom: 2px solid var(--accent-blue); overflow: hidden; white-space: nowrap; padding: 12px 0; margin-bottom: 20px;">
+    <div id="movingBannerText" style="display: inline-block; padding-left: 100%; animation: marquee 25s linear infinite; color: #fff; font-weight: 600; font-size: 14px;">
+        Welcome to Tahr Central — Stay Updated with the Latest House News and Important Information!
+    </div>
+</div>
+
+<style>
+@keyframes marquee {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(-100%, 0); }
+}
+/* Style for 2-column large widgets */
+.news-grid-large {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 32px;
+}
+.large-widget {
+    min-height: 400px;
+}
+.drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    color: var(--text-muted);
+    margin-top: 15px;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+.drop-zone.dragover {
+    background: rgba(66, 133, 244, 0.1);
+    border-color: var(--accent-blue);
+}
+</style>
+
+<div class="news-section">
+    <div class="section-header">
+        <div>
+            <div class="section-title">Information Hub</div>
+            <div class="section-subtitle">Live updates and internal news</div>
+        </div>
     </div>
 
-    <div class="page-content">
-
-      <div class="admin-panel" id="adminPanel" style="display:none;">
-        <div class="admin-panel-title">⚙️ Admin Controls – Dashboard</div>
-        <div class="admin-controls-row">
-          <button class="btn btn-primary" onclick="openModal('addHouseNewsModal')">+ House News</button>
-          <button class="btn btn-primary" onclick="openModal('addSliderModal')">+ Add Slider</button>
-          <button class="btn btn-primary" onclick="openModal('addEventModal')">+ Calendar Event</button>
-        </div>
-      </div>
-
-      <div class="news-section">
-        <div class="section-header">
-          <div>
-            <div class="section-title">Information Hub</div>
-            <div class="section-subtitle">Live news updated daily</div>
-          </div>
-        </div>
-
-        <div class="news-grid" id="newsGrid">
-          <div class="news-widget house-news-widget">
+    <div class="news-grid-large">
+        <div class="news-widget house-news-widget large-widget" id="houseNewsWidget">
             <div class="news-widget-title">🏠 House News</div>
             <div id="houseNewsSlides"></div>
             <div class="news-dots" id="houseNewsDots"></div>
-          </div>
-
-          <div class="news-widget" id="indiaNewsWidget">
-            <div class="news-widget-title">🇮🇳 Indian News</div>
-            <div id="indiaNewsSlides"><div class="news-img-placeholder">📰</div><p class="news-headline" style="color:var(--text-muted);">Loading...</p></div>
-            <div class="news-dots" id="indiaNewsDots"></div>
-          </div>
-
-          <div class="news-widget" id="businessNewsWidget">
-            <div class="news-widget-title">💼 Business News</div>
-            <div id="businessNewsSlides"><div class="news-img-placeholder">📈</div><p class="news-headline" style="color:var(--text-muted);">Loading...</p></div>
-            <div class="news-dots" id="businessNewsDots"></div>
-          </div>
-
-          <div class="news-widget" id="worldNewsWidget">
-            <div class="news-widget-title">🌍 World News</div>
-            <div id="worldNewsSlides"><div class="news-img-placeholder">🌐</div><p class="news-headline" style="color:var(--text-muted);">Loading...</p></div>
-            <div class="news-dots" id="worldNewsDots"></div>
-          </div>
-
-          <div class="news-widget" id="sportsNewsWidget">
-            <div class="news-widget-title">⚽ Sports News</div>
-            <div id="sportsNewsSlides"><div class="news-img-placeholder">🏅</div><p class="news-headline" style="color:var(--text-muted);">Loading...</p></div>
-            <div class="news-dots" id="sportsNewsDots"></div>
-          </div>
+            
+            <div id="dropZone" class="drop-zone admin-only" style="display:none;">
+                <p>Drag & Drop Image here to add to House News</p>
+                <input type="file" id="houseFileImg" hidden accept="image/*">
+            </div>
         </div>
+
+        <div class="news-widget large-widget" id="importantInfoWidget">
+            <div class="news-widget-title">📢 Important Information</div>
+            <div id="importantNewsSlides">
+                <div class="news-img-placeholder">📢</div>
+                <p class="news-headline" style="color:var(--text-muted);">Loading live updates...</p>
+            </div>
+            <div class="news-dots" id="importantNewsDots"></div>
         </div>
+    </div>
+</div>
 
       <div class="info-drive-section">
         <div class="info-drive-left">
